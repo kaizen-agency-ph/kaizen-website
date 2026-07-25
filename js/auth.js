@@ -9,7 +9,10 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
@@ -119,5 +122,71 @@ export function requireAuth(onReady, { requireAdmin = false, allowedRoles = null
       return;
     }
     onReady(user, access);
+  });
+}
+
+/**
+ * Opens a small self-contained modal that lets the signed-in user change
+ * their own password. Firebase requires a recent login to change a password,
+ * so we first re-authenticate with the CURRENT password (which also verifies
+ * they're really the account owner), then set the new one. Styled inline so
+ * it works identically on every page (login-styled admin, planner, etc.) and
+ * on mobile (16px inputs avoid iOS zoom; card is width-capped and padded).
+ */
+export function openChangePasswordDialog() {
+  if (document.getElementById("cp-overlay")) return;
+  const user = auth.currentUser;
+  if (!user) { alert("You need to be signed in to change your password."); return; }
+
+  const inputCss = "width:100%;box-sizing:border-box;padding:11px 12px;margin-bottom:10px;border:1px solid #EBDDD8;border-radius:8px;font-size:16px;color:#3A2E3F;background:#FCFAF9;";
+  const btnCss = "padding:10px 16px;border:none;border-radius:8px;background:#8C4F66;color:#fff;font-size:14px;cursor:pointer;";
+  const btnGhostCss = "padding:10px 16px;border:1px solid #EBDDD8;border-radius:8px;background:#fff;color:#3A2E3F;font-size:14px;cursor:pointer;";
+
+  const ov = document.createElement("div");
+  ov.id = "cp-overlay";
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(40,30,44,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'Outfit',system-ui,sans-serif;";
+  const card = document.createElement("div");
+  card.style.cssText = "background:#fff;border-radius:16px;padding:22px;width:100%;max-width:380px;box-shadow:0 18px 50px rgba(40,30,44,.3);color:#3A2E3F;";
+  card.innerHTML =
+    "<h3 style='margin:0 0 4px;font-size:1.1rem;color:#8C4F66'>Change password</h3>"
+    + "<p style='margin:0 0 16px;font-size:13px;color:#7A6B79'>Enter your current password, then a new one (at least 6 characters).</p>"
+    + "<input id='cp-current' type='password' placeholder='Current password' autocomplete='current-password' style='" + inputCss + "' />"
+    + "<input id='cp-new' type='password' placeholder='New password' autocomplete='new-password' style='" + inputCss + "' />"
+    + "<input id='cp-confirm' type='password' placeholder='Confirm new password' autocomplete='new-password' style='" + inputCss + "' />"
+    + "<div id='cp-msg' style='min-height:18px;font-size:13px;margin:2px 0 12px'></div>"
+    + "<div style='display:flex;gap:10px;justify-content:flex-end'>"
+    + "<button id='cp-cancel' style='" + btnGhostCss + "'>Cancel</button>"
+    + "<button id='cp-save' style='" + btnCss + "'>Update password</button>"
+    + "</div>";
+  ov.appendChild(card);
+  document.body.appendChild(ov);
+
+  const close = () => ov.remove();
+  ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+  card.querySelector("#cp-cancel").addEventListener("click", close);
+  setTimeout(() => { try { card.querySelector("#cp-current").focus(); } catch (e) {} }, 30);
+
+  card.querySelector("#cp-save").addEventListener("click", async () => {
+    const cur = card.querySelector("#cp-current").value;
+    const nw = card.querySelector("#cp-new").value;
+    const cf = card.querySelector("#cp-confirm").value;
+    const msg = card.querySelector("#cp-msg");
+    if (nw.length < 6) { msg.style.color = "#b3453f"; msg.textContent = "New password must be at least 6 characters."; return; }
+    if (nw !== cf) { msg.style.color = "#b3453f"; msg.textContent = "New passwords don't match."; return; }
+    msg.style.color = "#7A6B79"; msg.textContent = "Updating…";
+    try {
+      const cred = EmailAuthProvider.credential(user.email, cur);
+      await reauthenticateWithCredential(user, cred);
+      await updatePassword(user, nw);
+      msg.style.color = "#4a7c59"; msg.textContent = "Password updated ✓";
+      setTimeout(close, 1200);
+    } catch (err) {
+      console.error(err);
+      msg.style.color = "#b3453f";
+      if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") msg.textContent = "Current password is incorrect.";
+      else if (err.code === "auth/weak-password") msg.textContent = "New password is too weak.";
+      else if (err.code === "auth/too-many-requests") msg.textContent = "Too many attempts — please wait a bit and try again.";
+      else msg.textContent = "Couldn't update password. Try again.";
+    }
   });
 }

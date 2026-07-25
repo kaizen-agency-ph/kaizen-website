@@ -10,6 +10,7 @@
   <div class="topbar">
     <div class="brand">Admin Panel<small id="user-email">loading…</small></div>
     <nav>
+      <a href="#" id="change-pass-link" style="margin-right:16px">Change password</a>
       <a href="#" id="logout-link">Sign Out</a>
     </nav>
   </div>
@@ -48,7 +49,7 @@
 
     <div class="card">
       <h3 style="margin-top:0">Add a new user</h3>
-      <p class="hint">Creates a real login for them and grants dashboard access in one step. Share the email/password with them directly — have them change the password after first login (there's no self-service reset page in this build). Optionally set a trial end date: access is automatically revoked once it passes, and they'll see a heads-up when a day is left.</p>
+      <p class="hint">Creates a real login for them and grants dashboard access in one step. Share the email/password with them directly — they can change it anytime via "Change password" in their dashboard after first login (there's still no forgot-password reset if they lose it). Optionally set a trial end date: access is automatically revoked once it passes, and they'll see a heads-up when a day is left.</p>
       <div class="field-row">
         <label class="field" style="flex:2 1 200px">
           <span>Email</span>

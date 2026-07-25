@@ -395,10 +395,13 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 <body>
 <div id="wd-topbar" style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid #ecdfdf;font-family:'Outfit',system-ui,sans-serif;font-size:14px;color:#3A2E3F;">
   <span id="wd-user-email">Loading&hellip;</span>
-  <a href="#" id="wd-logout" style="color:#8C4F66;text-decoration:none;font-weight:500;">Sign Out</a>
+  <span style="white-space:nowrap">
+    <a href="#" id="wd-change-pass" style="color:#8C4F66;text-decoration:none;font-weight:500;margin-right:16px;">Change password</a>
+    <a href="#" id="wd-logout" style="color:#8C4F66;text-decoration:none;font-weight:500;">Sign Out</a>
+  </span>
 </div>
 <script type="module">
-  import { requireAuth, logout } from "./js/auth.js";
+  import { requireAuth, logout, openChangePasswordDialog } from "./js/auth.js";
   function showTrialPopup(){
     var todayKey = new Date().toISOString().slice(0, 10);
     try { if(localStorage.getItem("wd-trial-dismissed") === todayKey) return; } catch(e){}
@@ -422,6 +425,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
     }
   }, { allowedRoles: ["couple"] });
+  document.getElementById("wd-change-pass").addEventListener("click", function(e){ e.preventDefault(); openChangePasswordDialog(); });
   document.getElementById("wd-logout").addEventListener("click", function(e){ e.preventDefault(); logout(); });
 </script>
 <div id="app" class="wp"></div>

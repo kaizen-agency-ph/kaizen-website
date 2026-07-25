@@ -1,4 +1,4 @@
-import { requireAuth, logout, db } from "./auth.js";
+import { requireAuth, logout, db, openChangePasswordDialog } from "./auth.js";
 import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
@@ -22,6 +22,11 @@ let adminEmail = "";
 document.getElementById("logout-link").addEventListener("click", (e) => {
   e.preventDefault();
   logout();
+});
+
+document.getElementById("change-pass-link").addEventListener("click", (e) => {
+  e.preventDefault();
+  openChangePasswordDialog();
 });
 
 /**
