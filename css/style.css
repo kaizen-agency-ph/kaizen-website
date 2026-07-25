@@ -277,7 +277,7 @@ th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: u
 
   /* Let wide tables scroll sideways within their card instead of overflowing */
   .card { overflow-x: auto; }
-  .card table { min-width: 480px; }
+  .card table { min-width: 620px; }
 
   .summary-grid { grid-template-columns: repeat(2, 1fr); }
   .stat .value { font-size: 1.2rem; }

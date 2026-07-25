@@ -48,7 +48,7 @@
 
     <div class="card">
       <h3 style="margin-top:0">Add a new user</h3>
-      <p class="hint">Creates a real login for them and grants dashboard access in one step. Share the email/password with them directly — have them change the password after first login (there's no self-service reset page in this build).</p>
+      <p class="hint">Creates a real login for them and grants dashboard access in one step. Share the email/password with them directly — have them change the password after first login (there's no self-service reset page in this build). Optionally set a trial end date: access is automatically revoked once it passes, and they'll see a heads-up when a day is left.</p>
       <div class="row">
         <input type="email" id="new-email" placeholder="Email" />
         <input type="text" id="new-password" placeholder="Temporary password (6+ chars)" />
@@ -57,6 +57,9 @@
           <option value="coordinator">Coordinator</option>
           <option value="admin">Admin</option>
         </select>
+        <label style="display:flex;flex-direction:column;font-size:12px;color:var(--muted)">Trial ends (optional)
+          <input type="date" id="new-trial" style="margin-bottom:0" />
+        </label>
         <button class="btn" id="create-user">Create</button>
       </div>
       <div class="error" id="create-error"></div>
@@ -74,7 +77,7 @@
       </div>
       <p class="hint">"Revoke" blocks their dashboard access immediately but keeps the account on file, so you can "Restore" it later — same role, same login, no need to recreate anything. It does not delete their login credentials outright (that requires the Firebase Admin SDK, which this static-hosted build doesn't have), so keep passwords private regardless.</p>
       <table>
-        <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
+        <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Trial ends</th><th>Added</th><th></th></tr></thead>
         <tbody id="users-body"></tbody>
       </table>
     </div>

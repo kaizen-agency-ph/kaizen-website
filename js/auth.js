@@ -53,6 +53,10 @@ export async function checkAccess(user) {
   if (!snap.exists()) return null;
   const data = snap.data();
   if (data.active === false) return null;
+  // Trial expiry = automatic revoke. With no server cron on a static host,
+  // this is enforced here at access-check time: once the trial end passes,
+  // the account is denied on its next page load / auth refresh.
+  if (data.trialEndsAt && Date.now() > Number(data.trialEndsAt)) return null;
   return data;
 }
 

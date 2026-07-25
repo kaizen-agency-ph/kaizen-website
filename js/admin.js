@@ -62,10 +62,17 @@ async function findAllowedUserByEmail(email) {
   return { id: d.id, ...d.data() };
 }
 
+// Converts a date input value ("YYYY-MM-DD") to end-of-day epoch millis, or
+// null if empty. End-of-day so the trial covers the whole final day.
+function trialMillisFromInput(dateStr) {
+  return dateStr ? new Date(dateStr + "T23:59:59").getTime() : null;
+}
+
 document.getElementById("create-user").addEventListener("click", async () => {
   const email = document.getElementById("new-email").value.trim();
   const password = document.getElementById("new-password").value;
   const role = document.getElementById("new-role").value;
+  const trialEndsAt = trialMillisFromInput(document.getElementById("new-trial").value);
   const errorEl = document.getElementById("create-error");
   errorEl.textContent = "";
 
@@ -80,11 +87,13 @@ document.getElementById("create-user").addEventListener("click", async () => {
       email,
       role,
       active: true,
+      trialEndsAt,
       addedAt: serverTimestamp(),
       addedBy: adminEmail
     });
     document.getElementById("new-email").value = "";
     document.getElementById("new-password").value = "";
+    document.getElementById("new-trial").value = "";
     await loadUsers();
   } catch (err) {
     console.error(err);
@@ -98,11 +107,13 @@ document.getElementById("create-user").addEventListener("click", async () => {
           email,
           role,
           active: true,
+          trialEndsAt,
           restoredAt: serverTimestamp(),
           restoredBy: adminEmail
         }, { merge: true });
         document.getElementById("new-email").value = "";
         document.getElementById("new-password").value = "";
+        document.getElementById("new-trial").value = "";
         await loadUsers();
       } else if (existing) {
         errorEl.textContent = "That email already has active dashboard access — no need to recreate it.";
@@ -143,12 +154,34 @@ async function loadPricing() {
 
 function peso(n) { return "₱" + Number(n || 0).toLocaleString(); }
 
+// True once a trial has passed its end. Expired accounts are treated like
+// revoked ones for stats/revenue (and are auto-denied at login by checkAccess).
+function isExpired(u) {
+  return !!(u.trialEndsAt && Date.now() > Number(u.trialEndsAt));
+}
+
+// Human status for the trial cell: none, days remaining, or expired.
+function trialInfo(u) {
+  if (!u.trialEndsAt) return { text: "—", color: "var(--muted)" };
+  const ms = Number(u.trialEndsAt) - Date.now();
+  if (ms <= 0) return { text: "Expired", color: "var(--danger)" };
+  const days = Math.ceil(ms / 86400000);
+  return { text: days + " day" + (days > 1 ? "s" : "") + " left", color: days <= 3 ? "#b5850f" : "var(--muted)" };
+}
+
+// epoch millis -> "YYYY-MM-DD" for prefilling the date input; "" if unset.
+function ymd(ms) {
+  if (!ms) return "";
+  const d = new Date(Number(ms));
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
 function renderStats() {
-  // Revoked accounts are excluded from every stat below (including the
-  // account-type counts) since they're no longer using or paying for
-  // the product. They still show up in the table further down so an
-  // admin can find and restore them.
-  const active = allUsers.filter((u) => u.active !== false);
+  // Revoked AND trial-expired accounts are excluded from every stat below
+  // (including account-type counts and revenue) since they're no longer
+  // active users. They still show up in the table so an admin can find,
+  // restore, or extend them.
+  const active = allUsers.filter((u) => u.active !== false && !isExpired(u));
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const count = (role) => active.filter((u) => u.role === role).length;
   const isRecent = (u) => {
@@ -226,25 +259,46 @@ function renderTable() {
   const body = document.getElementById("users-body");
   body.innerHTML = "";
   if (rows.length === 0) {
-    body.innerHTML = '<tr><td colspan="5" class="hint" style="text-align:center;padding:20px 0">No accounts match this filter.</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" class="hint" style="text-align:center;padding:20px 0">No accounts match this filter.</td></tr>';
     return;
   }
   rows.forEach((data) => {
     const revoked = data.active === false;
+    const expired = isExpired(data);
     const tr = document.createElement("tr");
-    if (revoked) tr.style.opacity = "0.55";
+    if (revoked || expired) tr.style.opacity = "0.55";
     const added = data.addedAt && data.addedAt.toDate ? data.addedAt.toDate().toLocaleDateString() : "—";
     const actionBtn = revoked
       ? `<button class="btn" data-id="${data.id}" data-action="restore">Restore</button>`
       : `<button class="btn danger" data-id="${data.id}" data-action="revoke">Revoke</button>`;
+    let statusBadge;
+    if (revoked) statusBadge = '<span class="badge" style="background:#f1e1e1;color:#8a6d6d">Revoked</span>';
+    else if (expired) statusBadge = '<span class="badge" style="background:#f3e3e3;color:#9b4b4b">Expired</span>';
+    else statusBadge = '<span class="badge user">Active</span>';
+    const ti = trialInfo(data);
     tr.innerHTML = `
       <td>${escapeHtml(data.email || "")}</td>
       <td><span class="badge ${data.role}">${data.role}</span></td>
-      <td>${revoked ? '<span class="badge" style="background:#f1e1e1;color:#8a6d6d">Revoked</span>' : '<span class="badge user">Active</span>'}</td>
+      <td>${statusBadge}</td>
+      <td>
+        <input type="date" class="trial-input" data-id="${data.id}" value="${ymd(data.trialEndsAt)}" style="font-size:0.82rem;padding:6px 8px;margin-bottom:4px;max-width:150px" />
+        <div style="font-size:0.72rem;color:${ti.color}">${ti.text}</div>
+      </td>
       <td>${added}</td>
       <td>${actionBtn}</td>
     `;
     body.appendChild(tr);
+  });
+  body.querySelectorAll(".trial-input").forEach((inp) => {
+    inp.addEventListener("change", async () => {
+      // Empty clears the trial (permanent access); a date sets/extends it.
+      await setDoc(doc(db, "allowedUsers", inp.dataset.id), {
+        trialEndsAt: trialMillisFromInput(inp.value),
+        trialUpdatedAt: serverTimestamp(),
+        trialUpdatedBy: adminEmail
+      }, { merge: true });
+      await loadUsers();
+    });
   });
   body.querySelectorAll('[data-action="revoke"]').forEach((btn) => {
     btn.addEventListener("click", async () => {

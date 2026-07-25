@@ -399,8 +399,28 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 </div>
 <script type="module">
   import { requireAuth, logout } from "./js/auth.js";
+  function showTrialPopup(){
+    var todayKey = new Date().toISOString().slice(0, 10);
+    try { if(localStorage.getItem("wd-trial-dismissed") === todayKey) return; } catch(e){}
+    if(document.getElementById("wd-trial")) return;
+    var box = document.createElement("div");
+    box.id = "wd-trial";
+    box.style.cssText = "position:fixed;left:16px;bottom:16px;z-index:45;width:300px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #EBDDD8;border-radius:14px;box-shadow:0 10px 30px rgba(58,46,63,.22);padding:14px 34px 14px 16px;font-family:'Outfit',system-ui,sans-serif;color:#3A2E3F;font-size:13px;line-height:1.45;";
+    box.innerHTML = "<button aria-label='Dismiss' style='position:absolute;top:8px;right:10px;border:none;background:none;font-size:17px;line-height:1;color:#7A6B79;cursor:pointer;padding:0'>\u00d7</button>"
+      + "<div style='font-weight:600;margin-bottom:4px;color:#8C4F66'>Trial ending soon</div>"
+      + "<div>Your free trial ends within a day. Renew to keep your access.</div>";
+    box.querySelector("button").addEventListener("click", function(){
+      try { localStorage.setItem("wd-trial-dismissed", todayKey); } catch(e){}
+      box.remove();
+    });
+    document.body.appendChild(box);
+  }
   requireAuth((user, access) => {
     document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Couple";
+    if(access.trialEndsAt){
+      var msLeft = Number(access.trialEndsAt) - Date.now();
+      if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
+    }
   }, { allowedRoles: ["couple"] });
   document.getElementById("wd-logout").addEventListener("click", function(e){ e.preventDefault(); logout(); });
 </script>
