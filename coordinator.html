@@ -2368,17 +2368,32 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     var pkgCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
     pkgCard.appendChild(el("div", { class:"eyebrow" }, "Package / service tier"));
     var pkgRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap", alignItems:"center" } });
+    // A tier is "applied" when the client's package name matches a saved tier.
+    var appliedTier = biz.packages.filter(function(p){ return (p.name || "").trim() && p.name === m.pkg; })[0];
     var sel = el("select", { style:{ maxWidth:"320px", flex:"1 1 220px" } });
-    sel.appendChild(el("option", { value:"" }, biz.packages.length ? "Apply a saved tier…" : "No saved tiers yet — add one"));
+    var ph = el("option", { value:"" }, biz.packages.length ? "Apply a saved tier…" : "No saved tiers yet — add one");
+    if(!appliedTier) ph.selected = true;
+    sel.appendChild(ph);
     biz.packages.forEach(function(p){
-      sel.appendChild(el("option", { value:p.id }, (p.name || "Untitled tier") + (p.fee ? "  ·  " + biz.currency + Number(p.fee).toLocaleString() : "")));
+      var o = el("option", { value:p.id }, (p.name || "Untitled tier") + (p.fee ? "  ·  " + biz.currency + Number(p.fee).toLocaleString() : ""));
+      if(appliedTier && p.id === appliedTier.id) o.selected = true;
+      sel.appendChild(o);
     });
     sel.addEventListener("change", function(){ if(sel.value) applyPackage(sel.value); });
     pkgRow.appendChild(sel);
     pkgRow.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ showPkgEditor = !showPkgEditor; render(); } }, showPkgEditor ? "Done" : "Manage tiers"));
     pkgCard.appendChild(pkgRow);
+    if(appliedTier){
+      var feeEdited = String(appliedTier.fee || "") !== String(m.fee || "");
+      pkgCard.appendChild(el("div", { style:{ marginTop:"12px" } }, [
+        el("span", { class:"wp-chip" }, "✓ Applied: " + appliedTier.name),
+        feeEdited ? el("span", { style:{ fontSize:"11px", color:"var(--ink-soft)", marginLeft:"8px" } }, "fee adjusted from tier default") : null
+      ]));
+    }
     pkgCard.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"10px 0 0" } },
-      "Save your service tiers once, then pick one here to auto-fill the package name and fee below."));
+      appliedTier
+        ? "This client is on the “" + appliedTier.name + "” tier. Pick another to switch, or edit the fields below to customise."
+        : "Save your service tiers once, then pick one here to auto-fill the package name and fee below."));
 
     if(showPkgEditor){
       var ed = el("div", { style:{ marginTop:"14px", borderTop:"1px solid var(--line)", paddingTop:"14px" } });
