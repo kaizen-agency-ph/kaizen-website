@@ -179,6 +179,36 @@ input:focus, select:focus {
   margin-bottom: 0;
 }
 
+/* Aligned form rows (pricing, add-user): label + control stacked, buttons bottom-aligned */
+.field-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.field > span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.field input,
+.field select {
+  margin-bottom: 0;
+  height: 42px;
+}
+.field-row .btn {
+  flex: 0 0 auto;
+  height: 42px;
+  white-space: nowrap;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -274,6 +304,9 @@ th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: u
 
   /* 16px inputs stop iOS from auto-zooming on focus */
   input, select { font-size: 16px; }
+
+  .field { flex: 1 1 100% !important; }
+  .field-row .btn { width: 100%; }
 
   /* Let wide tables scroll sideways within their card instead of overflowing */
   .card { overflow-x: auto; }
