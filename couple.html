@@ -515,7 +515,26 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   var saveError = false;
   /* EDITION SWITCH: true = coordinator (multi-wedding dashboard), false = couples (single wedding). */
   var COORD = false;
-  var BIZ_KEY = COORD ? "wedding-biz-v1" : "wedding-couple-v1";
+  // Per-user storage: namespace the key by the signed-in Firebase UID so two
+  // different accounts on the same browser never share or overwrite each
+  // other's data. The UID is read synchronously from Firebase's persisted
+  // auth (written on the login page, same origin) — already present by the
+  // time this planner loads. Falls back to "anon" if not found (the auth
+  // guard redirects unauthenticated visitors away anyway).
+  function currentUid(){
+    try {
+      for(var i=0;i<localStorage.length;i++){
+        var k = localStorage.key(i);
+        if(k && k.indexOf("firebase:authUser:") === 0){
+          var v = JSON.parse(localStorage.getItem(k));
+          if(v && v.uid) return v.uid;
+        }
+      }
+    } catch(e){}
+    return "anon";
+  }
+  var BIZ_BASE = COORD ? "wedding-biz-v1" : "wedding-couple-v1";
+  var BIZ_KEY = BIZ_BASE + "-" + currentUid();
   var STATUSES = ["Lead", "Booked", "Planning", "Completed", "Cancelled"];
 
   function defaultMeta(){ return { clientName:"", email:"", phone:"", pkg:"", fee:"", paid:"", status:"Lead", notes:"" }; }
@@ -529,6 +548,17 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   }
   function loadBiz(){
     try { var v = localStorage.getItem(BIZ_KEY); if(v) return normalizeBiz(JSON.parse(v)); } catch(e){}
+    // One-time migration from the old shared (pre-per-user) key: adopt that
+    // data for the current user, then remove the shared copy so it can't
+    // bleed into a different account on the same browser.
+    try {
+      var legacy = localStorage.getItem(BIZ_BASE);
+      if(legacy){
+        var migrated = normalizeBiz(JSON.parse(legacy));
+        try { localStorage.removeItem(BIZ_BASE); } catch(e){}
+        return migrated;
+      }
+    } catch(e){}
     try { var old = localStorage.getItem(KEY); if(old) return normalizeBiz({ weddings:[ { plan: JSON.parse(old) } ] }); } catch(e){}
     return normalizeBiz({});
   }
