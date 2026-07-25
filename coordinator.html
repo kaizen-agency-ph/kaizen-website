@@ -525,6 +525,11 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     if(o && Array.isArray(o.weddings)) b.weddings = o.weddings.map(function(w){
       return { id: w.id || uid(), meta: Object.assign(defaultMeta(), w.meta || {}), plan: normalize(w.plan || {}) };
     });
+    // Reusable package / service-tier presets (business-wide). Applying one
+    // fills a client's package name + fee (and notes, if empty).
+    b.packages = (o && Array.isArray(o.packages)) ? o.packages.map(function(p){
+      return { id: p.id || uid(), name: p.name || "", fee: (p.fee != null ? p.fee : ""), notes: p.notes || "" };
+    }) : [];
     return b;
   }
   function loadBiz(){
@@ -657,6 +662,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   /* ---------- app shell ---------- */
   var app = document.getElementById("app");
   var tab = "overview";
+  var showPkgEditor = false;
   var ioMsg = null;
   var headBgImg = null;
   var seatZoom = 1;
@@ -2320,9 +2326,67 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     return el("label", { class:"wp-field" }, [ el("span", {}, labelText), inp ]);
   }
 
+  // Applies a saved package tier to the current client: fills package name
+  // and fee, and prefills notes only if notes is currently empty (never
+  // clobbers client-specific notes the coordinator already wrote).
+  function applyPackage(pkgId){
+    var p = biz.packages.filter(function(x){ return x.id === pkgId; })[0];
+    if(!p) return;
+    var m = active().meta;
+    m.pkg = p.name || "";
+    m.fee = (p.fee != null ? p.fee : "");
+    if(p.notes && !(m.notes || "").trim()) m.notes = p.notes;
+    save(); render();
+  }
+
   function viewClient(){
     var f = document.createDocumentFragment();
     var m = active().meta;
+
+    // ---- Package / service-tier presets ----
+    var pkgCard = el("div", { class:"wp-card", style:{ marginBottom:"16px" } });
+    pkgCard.appendChild(el("div", { class:"eyebrow" }, "Package / service tier"));
+    var pkgRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"12px", flexWrap:"wrap", alignItems:"center" } });
+    var sel = el("select", { style:{ maxWidth:"320px", flex:"1 1 220px" } });
+    sel.appendChild(el("option", { value:"" }, biz.packages.length ? "Apply a saved tier…" : "No saved tiers yet — add one"));
+    biz.packages.forEach(function(p){
+      sel.appendChild(el("option", { value:p.id }, (p.name || "Untitled tier") + (p.fee ? "  ·  " + biz.currency + Number(p.fee).toLocaleString() : "")));
+    });
+    sel.addEventListener("change", function(){ if(sel.value) applyPackage(sel.value); });
+    pkgRow.appendChild(sel);
+    pkgRow.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){ showPkgEditor = !showPkgEditor; render(); } }, showPkgEditor ? "Done" : "Manage tiers"));
+    pkgCard.appendChild(pkgRow);
+    pkgCard.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"10px 0 0" } },
+      "Save your service tiers once, then pick one here to auto-fill the package name and fee below."));
+
+    if(showPkgEditor){
+      var ed = el("div", { style:{ marginTop:"14px", borderTop:"1px solid var(--line)", paddingTop:"14px" } });
+      if(biz.packages.length === 0){
+        ed.appendChild(el("div", { class:"wp-empty", style:{ marginBottom:"12px" } }, "No tiers yet — add your first below."));
+      }
+      biz.packages.forEach(function(p){
+        var prow = el("div", { style:{ display:"grid", gridTemplateColumns:"1fr 130px 34px", gap:"8px", alignItems:"center", marginBottom:"8px" } });
+        var nameIn = el("input", { placeholder:"Tier name (e.g. Full coordination)" }); nameIn.value = p.name || "";
+        nameIn.addEventListener("input", function(){ p.name = nameIn.value; save(); });
+        var feeIn = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"Fee" }); feeIn.value = p.fee || "";
+        feeIn.addEventListener("input", function(){ p.fee = feeIn.value; save(); });
+        var del = el("button", { class:"wp-iconbtn", "aria-label":"Delete tier", onClick:function(){
+          biz.packages = biz.packages.filter(function(x){ return x.id !== p.id; }); save(); render();
+        } }, "×");
+        prow.appendChild(nameIn); prow.appendChild(feeIn); prow.appendChild(del);
+        ed.appendChild(prow);
+        var noteIn = el("textarea", { placeholder:"What's included (optional) — prefills notes when applied to a client with empty notes", style:{ minHeight:"54px", marginBottom:"14px" } });
+        noteIn.value = p.notes || "";
+        noteIn.addEventListener("input", function(){ p.notes = noteIn.value; save(); });
+        ed.appendChild(noteIn);
+      });
+      ed.appendChild(el("button", { class:"wp-btn", onClick:function(){
+        biz.packages.push({ id:uid(), name:"", fee:"", notes:"" }); save(); render();
+      } }, "+ Add tier"));
+      pkgCard.appendChild(ed);
+    }
+    f.appendChild(pkgCard);
+
     var card = el("div", { class:"wp-card" });
     card.appendChild(el("div", { class:"eyebrow" }, "Client & contract"));
     var g = el("div", { class:"wp-grid cols-2", style:{ marginTop:"16px" } });
