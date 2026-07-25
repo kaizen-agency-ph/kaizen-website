@@ -552,19 +552,9 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     return b;
   }
   function loadBiz(){
+    // Read only THIS user's namespaced key — no shared-key fallback, so a new
+    // account always starts clean and never inherits another account's data.
     try { var v = localStorage.getItem(BIZ_KEY); if(v) return normalizeBiz(JSON.parse(v)); } catch(e){}
-    // One-time migration from the old shared (pre-per-user) key: adopt that
-    // data for the current user, then remove the shared copy so it can't
-    // bleed into a different account on the same browser.
-    try {
-      var legacy = localStorage.getItem(BIZ_BASE);
-      if(legacy){
-        var migrated = normalizeBiz(JSON.parse(legacy));
-        try { localStorage.removeItem(BIZ_BASE); } catch(e){}
-        return migrated;
-      }
-    } catch(e){}
-    try { var old = localStorage.getItem(KEY); if(old) return normalizeBiz({ weddings:[ { plan: JSON.parse(old) } ] }); } catch(e){}
     return normalizeBiz({});
   }
   function save(){

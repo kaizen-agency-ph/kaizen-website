@@ -12,7 +12,9 @@ import {
   signOut,
   updatePassword,
   reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
@@ -38,6 +40,12 @@ if (!ALLOWED_HOSTS.includes(location.hostname)) {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Persist the signed-in user in localStorage (Firebase defaults to IndexedDB).
+// This lets the planner pages read the current UID synchronously at load to
+// namespace each account's data. login() awaits this before signing in so the
+// persistence mode is applied first.
+const persistenceReady = setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 /**
  * Looks up allowedUsers/{uid}. Returns the doc data ({email, role,
@@ -65,6 +73,7 @@ export async function checkAccess(user) {
 
 /** Sign in with email/password. Throws on failure (bad credentials). */
 export async function login(email, password) {
+  await persistenceReady;
   return signInWithEmailAndPassword(auth, email, password);
 }
 
