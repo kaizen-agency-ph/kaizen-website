@@ -2297,7 +2297,28 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     card.appendChild(el("div", { class:"wp-wc-name serif" }, wCouple(w)));
     card.appendChild(el("div", { class:"wp-wc-date" }, wDateStr(w) + (venue ? (" \u00b7 " + venue) : "")));
     var pbar = el("div", { class:"wp-bar sage", style:{ marginTop:"12px" } }); pbar.appendChild(el("i", { style:{ width: prog + "%" } })); card.appendChild(pbar);
-    card.appendChild(el("div", { class:"wp-wc-meta" }, Math.round(prog) + "% tasks \u00b7 " + money(m.fee) + " fee \u00b7 " + money(Number(m.fee||0) - Number(m.paid||0)) + " due"));
+    card.appendChild(el("div", { class:"wp-wc-meta" }, Math.round(prog) + "% tasks \u00b7 " + money(m.fee) + " fee"));
+
+    // Inline paid editor \u2014 update payments right from the card.
+    var payRow = el("div", { style:{ display:"flex", alignItems:"center", gap:"8px", marginTop:"10px", flexWrap:"wrap" } });
+    payRow.appendChild(el("span", { style:{ fontSize:"12px", color:"var(--ink-soft)" } }, "Paid " + biz.currency));
+    var paidIn = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"0",
+      style:{ width:"110px", padding:"7px 9px", marginBottom:"0", fontSize:"13px" } });
+    paidIn.value = m.paid || "";
+    var dueEl = el("span", { style:{ fontSize:"12px", fontWeight:"600", marginLeft:"auto", whiteSpace:"nowrap" } });
+    function refreshDue(){
+      var due = Number(m.fee || 0) - Number(m.paid || 0);
+      dueEl.textContent = money(due) + " due";
+      dueEl.style.color = due > 0 ? "var(--rose-deep)" : "var(--sage)";
+    }
+    paidIn.addEventListener("click", function(e){ e.stopPropagation(); });
+    paidIn.addEventListener("input", function(){ m.paid = paidIn.value; save(); refreshDue(); }); // live balance, no re-render (keeps focus)
+    paidIn.addEventListener("change", function(){ render(); }); // on blur, refresh the top Collected/Outstanding totals
+    refreshDue();
+    payRow.appendChild(paidIn);
+    payRow.appendChild(dueEl);
+    card.appendChild(payRow);
+
     var btns = el("div", { class:"wp-wc-btns" });
     btns.appendChild(el("button", { class:"wp-btn", style:{ flex:"1" }, onClick:function(){ openWedding(w.id); } }, "Open"));
     btns.appendChild(el("button", { class:"wp-iconbtn", title:"Remove wedding", "aria-label":"Remove wedding", onClick:function(){
