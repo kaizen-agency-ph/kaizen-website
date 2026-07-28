@@ -717,6 +717,22 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function sym(){ return state.details.currency || "₱"; }
   function num(v){ return (v === "" || v == null) ? 0 : (Number(v) || 0); }
   function fmt(n){ return sym() + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits:0 }); }
+
+  // Turns a plain input into a money field: shows the currency sign + commas
+  // (e.g. "₱1,999"), stores the raw number via set(), reveals the bare number
+  // while editing, and reformats on blur. opts.sym overrides the currency
+  // symbol; opts.onBlur runs after reformat (e.g. to refresh a total).
+  function bindMoney(inp, get, set, opts){
+    opts = opts || {};
+    inp.type = "text"; inp.inputMode = "numeric";
+    function symStr(){ return opts.sym || sym(); }
+    function format(){ var n = num(get()); inp.value = n ? (symStr() + n.toLocaleString(undefined, { maximumFractionDigits:0 })) : ""; }
+    format();
+    inp.addEventListener("focus", function(){ var n = num(get()); inp.value = n ? String(n) : ""; });
+    inp.addEventListener("input", function(){ set(inp.value.replace(/[^0-9.]/g, "")); });
+    inp.addEventListener("blur", function(){ format(); if(opts.onBlur) opts.onBlur(); });
+    return inp;
+  }
   function sumAct(){ return state.budget.items.reduce(function(a,b){ return a + num(b.act); }, 0); }
   function sumEst(){ return state.budget.items.reduce(function(a,b){ return a + num(b.est); }, 0); }
   function daysToGo(){
@@ -1281,9 +1297,8 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     tot.appendChild(el("div", { class:"l", style:{ fontSize:"12px", color:"var(--ink-soft)" } }, "Total budget"));
     var tr = el("div", { style:{ display:"flex", alignItems:"center", gap:"6px", marginTop:"8px" } });
     tr.appendChild(el("span", { class:"serif", style:{ fontSize:"22px", color:"var(--ink-soft)" } }, sym()));
-    var totalInput = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"Set a target", style:{ fontSize:"18px", padding:"8px 10px" } });
-    totalInput.value = state.budget.total;
-    totalInput.addEventListener("input", function(){ state.budget.total = totalInput.value; save(); recompute(); });
+    var totalInput = el("input", { placeholder:"Set a target", style:{ fontSize:"18px", padding:"8px 10px" } });
+    bindMoney(totalInput, function(){ return state.budget.total; }, function(v){ state.budget.total = v; save(); recompute(); });
     tr.appendChild(totalInput);
     tot.appendChild(tr);
     top.appendChild(tot);
@@ -1325,7 +1340,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
         var roStyle = { background:"var(--sage-soft)", borderColor:"#CBD8CC" };
         var labR = el("input", { readonly:"", tabindex:"-1", title:"From a booked vendor — manage it in the Vendors tab", style:roStyle }); labR.value = it.label;
         var estR = el("input", { readonly:"", tabindex:"-1", placeholder:"—", style:roStyle }); estR.value = it.est || "";
-        var actR = el("input", { readonly:"", tabindex:"-1", title:"Booked vendor cost", style:roStyle }); actR.value = it.act || "";
+        var actR = el("input", { readonly:"", tabindex:"-1", title:"Booked vendor cost", style:roStyle }); actR.value = num(it.act) ? fmt(num(it.act)) : "";
         var tag = el("span", { class:"wp-vstat booked", title:"Booked vendor", style:{ justifySelf:"center" } }, "✓");
         row.appendChild(labR); row.appendChild(estR); row.appendChild(actR); row.appendChild(tag);
         list.appendChild(row);
@@ -1333,10 +1348,8 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       }
       var lab = el("input", { placeholder:"Category" }); lab.value = it.label;
       lab.addEventListener("input", function(){ it.label = lab.value; save(); });
-      var est = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"0" }); est.value = it.est;
-      est.addEventListener("input", function(){ it.est = est.value; save(); recompute(); });
-      var act = el("input", { type:"number", min:"0", inputMode:"numeric", placeholder:"0" }); act.value = it.act;
-      act.addEventListener("input", function(){ it.act = act.value; save(); recompute(); });
+      var est = bindMoney(el("input", { placeholder:"0" }), function(){ return it.est; }, function(v){ it.est = v; save(); recompute(); });
+      var act = bindMoney(el("input", { placeholder:"0" }), function(){ return it.act; }, function(v){ it.act = v; save(); recompute(); });
       var del = el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){
         state.budget.items = state.budget.items.filter(function(x){ return x.id !== it.id; }); save(); render();
       } }, "\u00d7");
@@ -1487,7 +1500,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
           vc.appendChild(nm);
           vc.appendChild(hearts(o.rating || 0, function(v){ o.rating = v; save(); render(); }));
           vc.appendChild(gallery(o.images, function(urls){ o.images = (o.images||[]).concat(urls); save(); render(); }, function(ix){ o.images.splice(ix,1); save(); render(); }));
-          vc.appendChild(vfield("Price / quote", o, "price", "e.g. \u20b1120,000"));
+          vc.appendChild(vfield("Price / quote", o, "price", "e.g. \u20b1120,000", false, true));
           vc.appendChild(vfield("Contact", o, "contact", "Phone or email"));
           vc.appendChild(vfield("Website / page", o, "link", "Link or @handle"));
           vc.appendChild(vfield("Notes", o, "notes", "What's included, pros & cons\u2026", true));
@@ -1513,11 +1526,15 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     return f;
   }
 
-  function vfield(labelText, obj, key, placeholder, area){
+  function vfield(labelText, obj, key, placeholder, area, money){
     var inp = el(area ? "textarea" : "input", { placeholder: placeholder || "" });
     if(area) inp.style.minHeight = "64px";
-    inp.value = obj[key] || "";
-    inp.addEventListener("input", function(){ obj[key] = inp.value; save(); });
+    if(money){
+      bindMoney(inp, function(){ return obj[key]; }, function(v){ obj[key] = v; save(); }, { onBlur: render });
+    } else {
+      inp.value = obj[key] || "";
+      inp.addEventListener("input", function(){ obj[key] = inp.value; save(); });
+    }
     return el("label", { class:"wp-vf" }, [ el("span", {}, labelText), inp ]);
   }
 
@@ -2392,6 +2409,11 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 
   function metaField(labelText, key, type, ph){
     var m = active().meta;
+    if(type === "money"){
+      var minp = el("input", { placeholder: ph || "" });
+      bindMoney(minp, function(){ return m[key]; }, function(v){ m[key] = v; save(); }, { sym: biz.currency, onBlur: render });
+      return el("label", { class:"wp-field" }, [ el("span", {}, labelText), minp ]);
+    }
     var inp = el(type === "textarea" ? "textarea" : "input", { placeholder: ph || "" });
     if(type && type !== "textarea") inp.type = type;
     if(type === "number"){ inp.min = "0"; inp.inputMode = "numeric"; }
@@ -2413,10 +2435,10 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     g.appendChild(metaField("Email", "email", "text", "name@email.com"));
     g.appendChild(metaField("Phone", "phone", "text", "+63\u2026"));
     g.appendChild(metaField("Package / service tier", "pkg", "text", "e.g. Full coordination"));
-    g.appendChild(metaField("Contract fee (" + biz.currency + ")", "fee", "number", "0"));
+    g.appendChild(metaField("Contract fee (" + biz.currency + ")", "fee", "money", "0"));
     card.appendChild(g);
     var g2 = el("div", { class:"wp-grid cols-2" });
-    g2.appendChild(metaField("Amount paid (" + biz.currency + ")", "paid", "number", "0"));
+    g2.appendChild(metaField("Amount paid (" + biz.currency + ")", "paid", "money", "0"));
     var bal = Number(m.fee || 0) - Number(m.paid || 0);
     var balBox = el("div", { class:"wp-field" });
     balBox.appendChild(el("span", {}, "Balance due"));

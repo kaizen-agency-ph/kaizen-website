@@ -153,12 +153,23 @@ async function loadPricing() {
     console.error("Couldn't load pricing — check that firestore.rules includes the settings/{docId} match and has been published:", err);
     pricing = null;
   }
-  document.getElementById("price-couple").value = pricing && pricing.couple != null ? pricing.couple : "";
-  document.getElementById("price-coordinator").value = pricing && pricing.coordinator != null ? pricing.coordinator : "";
+  document.getElementById("price-couple").value = pricing && pricing.couple != null ? formatPeso(pricing.couple) : "";
+  document.getElementById("price-coordinator").value = pricing && pricing.coordinator != null ? formatPeso(pricing.coordinator) : "";
   renderStats();
 }
 
 function peso(n) { return "₱" + Number(n || 0).toLocaleString(); }
+
+// Money-input helpers for the pricing fields: strip to a bare number for
+// editing/saving, show "₱1,999" with commas otherwise.
+function digitsOnly(v) { return String(v == null ? "" : v).replace(/[^0-9.]/g, ""); }
+function formatPeso(v) { const n = Number(digitsOnly(v)); return n ? "₱" + n.toLocaleString() : ""; }
+["price-couple", "price-coordinator"].forEach((id) => {
+  const inp = document.getElementById(id);
+  if (!inp) return;
+  inp.addEventListener("focus", () => { inp.value = digitsOnly(inp.value); });
+  inp.addEventListener("blur", () => { inp.value = formatPeso(inp.value); });
+});
 
 // True once a trial has passed its end. Expired accounts are treated like
 // revoked ones for stats/revenue (and are auto-denied at login by checkAccess).
@@ -233,8 +244,8 @@ function renderStats() {
 document.getElementById("save-pricing").addEventListener("click", async () => {
   const errorEl = document.getElementById("pricing-error");
   errorEl.textContent = "";
-  const coupleVal = document.getElementById("price-couple").value;
-  const coordinatorVal = document.getElementById("price-coordinator").value;
+  const coupleVal = digitsOnly(document.getElementById("price-couple").value);
+  const coordinatorVal = digitsOnly(document.getElementById("price-coordinator").value);
 
   if (coupleVal === "" && coordinatorVal === "") {
     errorEl.textContent = "Enter at least one price.";
