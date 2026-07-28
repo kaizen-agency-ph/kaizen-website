@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaizen Agency — Marketing & Web Apps</title>
+<meta name="description" content="Kaizen Agency helps brands grow with sharp marketing and custom web apps — wedding planning, budget tracking, workout tracking and more.">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --bg-2:#111111;
+    --panel:#161616;
+    --text:#f5f5f5;
+    --muted:#9a9a9a;
+    --accent:#fb4f03;
+    --accent-2:#fb4f03;
+    --accent-3:#fb4f03;
+    --line:rgba(255,255,255,.09);
+    --grad:linear-gradient(120deg,#fb4f03 0%,#ff7a3d 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+  /* NAV */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    backdrop-filter:blur(14px);
+    background:rgba(7,7,11,.6);
+    border-bottom:1px solid var(--line);
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.5px}
+  .logo .mark{
+    width:34px;height:34px;display:grid;place-items:center;
+  }
+  .logo .mark::before{
+    content:"";width:30px;height:4px;border-radius:2px;background:var(--accent);
+    transform:rotate(-4deg);box-shadow:0 0 14px rgba(251,79,3,.55);
+  }
+  .nav-links{display:flex;gap:32px;align-items:center}
+  .nav-links a{color:var(--muted);font-size:15px;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .btn{
+    display:inline-block;padding:12px 24px;border-radius:100px;font-weight:600;font-size:15px;
+    background:var(--grad);color:#07070b;transition:transform .2s,box-shadow .2s;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(251,79,3,.4)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--accent-2);box-shadow:none}
+  .menu-btn{display:none;background:none;border:0;color:var(--text);font-size:26px;cursor:pointer}
+
+  /* HERO */
+  .hero{position:relative;padding:170px 0 110px;overflow:hidden}
+  .glow{position:absolute;border-radius:50%;filter:blur(120px);opacity:.5;z-index:0}
+  .glow.a{width:520px;height:520px;background:#fb4f03;top:-120px;right:-120px;opacity:.32}
+  .glow.b{width:460px;height:460px;background:#fb4f03;bottom:-160px;left:-140px;opacity:.22}
+  .glow.c{width:340px;height:340px;background:#ff7a3d;top:180px;left:40%;opacity:.14}
+  .hero .wrap{position:relative;z-index:2}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;
+    border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:13px;color:var(--muted);margin-bottom:26px;
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-3);box-shadow:0 0 12px var(--accent-3)}
+  h1{font-size:clamp(40px,7vw,82px);line-height:1.02;letter-spacing:-2px;font-weight:850;max-width:15ch}
+  .hero p.lead{margin:26px 0 38px;font-size:clamp(17px,2.4vw,21px);color:var(--muted);max-width:56ch}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+  .stats{display:flex;gap:46px;margin-top:70px;flex-wrap:wrap}
+  .stat .n{font-size:38px;font-weight:800;letter-spacing:-1px}
+  .stat .l{color:var(--muted);font-size:14px}
+
+  /* SECTION GENERIC */
+  section{position:relative;padding:100px 0}
+  .eyebrow{color:var(--accent-3);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:13px;margin-bottom:14px}
+  .sec-title{font-size:clamp(30px,4.5vw,48px);font-weight:800;letter-spacing:-1.2px;max-width:20ch}
+  .sec-intro{color:var(--muted);font-size:18px;max-width:60ch;margin-top:16px}
+  .sec-head{margin-bottom:56px}
+
+  /* SERVICES */
+  .grid{display:grid;gap:20px}
+  .services{grid-template-columns:repeat(3,1fr)}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:32px;
+    transition:transform .25s,border-color .25s,background .25s;position:relative;overflow:hidden;
+  }
+  .card:hover{transform:translateY(-6px);border-color:rgba(251,79,3,.55)}
+  .card .ic{
+    width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;margin-bottom:20px;
+    background:rgba(251,79,3,.14);border:1px solid var(--line);
+  }
+  .card h3{font-size:21px;font-weight:700;margin-bottom:10px;letter-spacing:-.4px}
+  .card p{color:var(--muted);font-size:15px}
+
+  /* APPS */
+  .apps{grid-template-columns:repeat(3,1fr)}
+  .app-card{
+    background:linear-gradient(160deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line);border-radius:22px;padding:0;overflow:hidden;
+    transition:transform .25s,border-color .25s;display:flex;flex-direction:column;
+  }
+  .app-card:hover{transform:translateY(-6px);border-color:rgba(251,79,3,.55)}
+  .app-top{height:150px;display:grid;place-items:center;font-size:56px;position:relative}
+  .app-top.wed{background:linear-gradient(135deg,rgba(251,79,3,.20),rgba(255,255,255,.04))}
+  .app-top.bud{background:linear-gradient(135deg,rgba(251,79,3,.12),rgba(255,255,255,.06))}
+  .app-top.gym{background:linear-gradient(135deg,rgba(251,79,3,.28),rgba(255,255,255,.03))}
+  .app-body{padding:26px 28px 30px}
+  .app-body h3{font-size:22px;font-weight:750;letter-spacing:-.5px;margin-bottom:8px}
+  .app-body p{color:var(--muted);font-size:15px;margin-bottom:16px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:5px 11px;border-radius:100px}
+  .app-link{display:inline-block;margin-top:16px;color:var(--accent-3);font-weight:600;font-size:15px}
+
+  /* PROCESS */
+  .process{grid-template-columns:repeat(4,1fr)}
+  .step{padding:28px;border:1px solid var(--line);border-radius:18px;background:var(--bg-2)}
+  .step .num{font-size:14px;font-weight:800;color:var(--accent);letter-spacing:1px}
+  .step h4{font-size:18px;margin:12px 0 8px;font-weight:700}
+  .step p{color:var(--muted);font-size:14px}
+
+  /* ABOUT */
+  .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+  .about-panel{
+    border:1px solid var(--line);border-radius:24px;padding:38px;background:var(--panel);
+    display:grid;grid-template-columns:1fr 1fr;gap:26px;
+  }
+  .about-panel .b .n{font-size:34px;font-weight:800;letter-spacing:-1px}
+  .about-panel .b .l{color:var(--muted);font-size:14px}
+  .kaizen-note{margin-top:22px;padding:18px 22px;border-left:3px solid var(--accent);background:rgba(251,79,3,.10);border-radius:8px;color:var(--muted);font-size:15px}
+
+  /* CTA / CONTACT */
+  .cta{
+    text-align:center;border:1px solid var(--line);border-radius:28px;padding:64px 32px;
+    background:radial-gradient(circle at 50% 0%,rgba(251,79,3,.16),transparent 60%),var(--bg-2);position:relative;overflow:hidden;
+  }
+  .cta h2{font-size:clamp(30px,5vw,50px);font-weight:850;letter-spacing:-1.4px;max-width:18ch;margin:0 auto 18px}
+  .cta p{color:var(--muted);font-size:18px;max-width:52ch;margin:0 auto 34px}
+  .contact-methods{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--line);padding:44px 0 40px;margin-top:20px}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+  .foot .muted{color:var(--muted);font-size:14px}
+  .socials{display:flex;gap:14px}
+  .socials a{
+    width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;
+    color:var(--muted);transition:.2s;font-size:15px;font-weight:600;
+  }
+  .socials a:hover{color:var(--text);border-color:var(--accent-2);transform:translateY(-2px)}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:900px){
+    .services,.apps{grid-template-columns:1fr 1fr}
+    .process{grid-template-columns:1fr 1fr}
+    .about-grid{grid-template-columns:1fr;gap:34px}
+  }
+  @media(max-width:640px){
+    .nav-links{display:none}
+    .menu-btn{display:block}
+    .services,.apps,.process{grid-template-columns:1fr}
+    .about-panel{grid-template-columns:1fr}
+    .stats{gap:30px}
+    .hero{padding:140px 0 80px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="#top" class="logo"><span class="mark"></span>Kaizen<span style="color:var(--muted);font-weight:500">Agency</span></a>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#apps">Web Apps</a>
+        <a href="#process">Process</a>
+        <a href="#about">About</a>
+        <a href="wedding-planner/">Login</a>
+        <a href="#contact" class="btn">Let's talk</a>
+      </div>
+      <button class="menu-btn" aria-label="menu" onclick="document.querySelector('.nav-links').style.display= (getComputedStyle(document.querySelector('.nav-links')).display==='none'?'flex':'none')">☰</button>
+    </nav>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+  <div class="glow c"></div>
+  <div class="wrap">
+    <span class="pill"><span class="dot"></span> Marketing studio &amp; product builders</span>
+    <h1>Continuous growth, <span class="grad-text">one improvement at a time.</span></h1>
+    <p class="lead">Kaizen Agency blends sharp marketing with custom web apps that people actually love to use. We help brands get seen, get chosen, and keep improving — the kaizen way.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn">Start a project</a>
+      <a href="#apps" class="btn ghost">See our apps</a>
+    </div>
+    <div class="stats">
+      <div class="stat reveal"><div class="n grad-text">3+</div><div class="l">Web apps built</div></div>
+      <div class="stat reveal"><div class="n grad-text">360°</div><div class="l">Marketing &amp; product</div></div>
+      <div class="stat reveal"><div class="n grad-text">100%</div><div class="l">Custom, no templates</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">What we do</div>
+      <h2 class="sec-title">Marketing that moves the needle.</h2>
+      <p class="sec-intro">From strategy to launch, we run the marketing engine so your brand grows while you focus on the work you love.</p>
+    </div>
+    <div class="grid services">
+      <div class="card reveal"><div class="ic">📣</div><h3>Social Media Management</h3><p>Content, community and calendars that keep your brand active, on-message, and growing across every platform.</p></div>
+      <div class="card reveal"><div class="ic">🎯</div><h3>Paid Ads &amp; Campaigns</h3><p>Targeted campaigns on Facebook, Instagram and beyond — built to reach the right people and convert.</p></div>
+      <div class="card reveal"><div class="ic">✍️</div><h3>Content &amp; Creative</h3><p>Scroll-stopping graphics, copy and video that tell your story and make people stop and pay attention.</p></div>
+      <div class="card reveal"><div class="ic">🌱</div><h3>Brand Strategy</h3><p>Positioning, voice and identity work that gives your business a clear, memorable place in the market.</p></div>
+      <div class="card reveal"><div class="ic">📊</div><h3>Analytics &amp; Growth</h3><p>We track what matters, learn fast, and refine — small continuous improvements that compound over time.</p></div>
+      <div class="card reveal"><div class="ic">💻</div><h3>Custom Web Apps</h3><p>Beyond marketing, we design and build web applications tailored to your idea — from concept to launch.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- APPS -->
+<section id="apps" style="background:var(--bg-2)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">Our products</div>
+      <h2 class="sec-title">Web apps we've built &amp; ship.</h2>
+      <p class="sec-intro">Not just campaigns — real, working products. Here's a taste of the apps we design, build and offer.</p>
+    </div>
+    <div class="grid apps">
+      <div class="app-card reveal">
+        <div class="app-top wed">💍</div>
+        <div class="app-body">
+          <h3>Wedding Planner</h3>
+          <p>Everything a couple needs to plan the big day — guest lists, budgets, checklists and timelines in one calm place.</p>
+          <div class="tags"><span class="tag">Checklists</span><span class="tag">Guest list</span><span class="tag">Timeline</span></div>
+          <a href="wedding-planner/" class="app-link">Open the planner →</a>
+        </div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-top bud">💰</div>
+        <div class="app-body">
+          <h3>Budget Tracker</h3>
+          <p>Track income, expenses and savings goals with a clean dashboard that makes money simple to understand.</p>
+          <div class="tags"><span class="tag">Expenses</span><span class="tag">Goals</span><span class="tag">Insights</span></div>
+        </div>
+      </div>
+      <div class="app-card reveal">
+        <div class="app-top gym">🏋️</div>
+        <div class="app-body">
+          <h3>Workout Tracker</h3>
+          <p>Log sessions, follow routines and watch your progress climb — a training companion that keeps you consistent.</p>
+          <div class="tags"><span class="tag">Routines</span><span class="tag">Progress</span><span class="tag">Streaks</span></div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--muted);margin-top:36px;font-size:16px" class="reveal">Have an idea for an app? <a href="#contact" style="color:var(--accent-3);font-weight:600">Let's build it together →</a></p>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">How we work</div>
+      <h2 class="sec-title">The Kaizen method.</h2>
+      <p class="sec-intro">Kaizen means "change for the better." We work in small, deliberate steps — always measuring, always improving.</p>
+    </div>
+    <div class="grid process">
+      <div class="step reveal"><div class="num">01</div><h4>Discover</h4><p>We learn your business, audience and goals to find the fastest path to growth.</p></div>
+      <div class="step reveal"><div class="num">02</div><h4>Build</h4><p>Marketing systems or web apps — we design and build the right thing, done well.</p></div>
+      <div class="step reveal"><div class="num">03</div><h4>Launch</h4><p>We ship, promote and put your brand or product in front of the right people.</p></div>
+      <div class="step reveal"><div class="num">04</div><h4>Improve</h4><p>We measure results and refine continuously — the compounding power of kaizen.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="background:var(--bg-2)">
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <div class="eyebrow">Who we are</div>
+      <h2 class="sec-title">A small team obsessed with better.</h2>
+      <p class="sec-intro">Kaizen Agency is a marketing studio and product shop. We help ambitious brands grow their audience while also building the web apps that make life easier — from wedding planning to fitness to personal finance. One partner for both the message and the product.</p>
+      <div class="kaizen-note">改善 <strong style="color:var(--text)">Kaizen</strong> — the Japanese philosophy of continuous improvement. It's not just our name, it's how we work: small steps, big results.</div>
+    </div>
+    <div class="about-panel reveal">
+      <div class="b"><div class="n grad-text">Marketing</div><div class="l">Social, ads, content &amp; brand</div></div>
+      <div class="b"><div class="n grad-text">Product</div><div class="l">Custom web app development</div></div>
+      <div class="b"><div class="n grad-text">Partner</div><div class="l">One team for message + build</div></div>
+      <div class="b"><div class="n grad-text">Growth</div><div class="l">Always measuring &amp; improving</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="cta reveal">
+      <div class="glow a" style="opacity:.25"></div>
+      <h2>Let's grow your brand — and build what's next.</h2>
+      <p>Tell us about your project. Whether it's marketing, a web app, or both, we'll help you take the next step.</p>
+      <a href="mailto:hello@kaizenagency.com" class="btn">Get in touch</a>
+      <div class="contact-methods">
+        <a href="https://www.facebook.com/people/Kaizen-Agency/61558492156597/" target="_blank" rel="noopener" class="btn ghost">Message us on Facebook</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="logo"><span class="mark"></span>Kaizen<span style="color:var(--muted);font-weight:500">Agency</span></div>
+    <div class="muted">© <span id="yr"></span> Kaizen Agency. Continuous improvement, always.</div>
+    <div class="socials">
+      <a href="https://www.facebook.com/people/Kaizen-Agency/61558492156597/" target="_blank" rel="noopener" aria-label="Facebook">f</a>
+      <a href="#contact" aria-label="Email">@</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  // scroll reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
