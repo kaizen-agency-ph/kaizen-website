@@ -30,7 +30,7 @@ import { firebaseConfig } from "./firebase-config.js";
 // the files on someone else's domain. Add your custom domain here if you set
 // one up later. localhost/127.0.0.1 are kept so YOU can still test via a
 // local dev server (a plain double-clicked file:// will be blocked by design).
-const ALLOWED_HOSTS = ["kaizen-agency-ph.github.io", "localhost", "127.0.0.1"];
+const ALLOWED_HOSTS = ["kaizenagency.online", "www.kaizenagency.online", "kaizen-agency-ph.github.io", "localhost", "127.0.0.1"];
 if (!ALLOWED_HOSTS.includes(location.hostname)) {
   document.documentElement.innerHTML =
     "<div style='font-family:sans-serif;padding:48px;text-align:center;color:#8C4F66'>This app can only run from its official website.</div>";
