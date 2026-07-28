@@ -11,6 +11,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  deleteDoc,
   serverTimestamp,
   query,
   where
@@ -276,6 +277,7 @@ function renderTable() {
     const actionBtn = revoked
       ? `<button class="btn" data-id="${data.id}" data-action="restore">Restore</button>`
       : `<button class="btn danger" data-id="${data.id}" data-action="revoke">Revoke</button>`;
+    const deleteBtn = `<button class="icon-btn" title="Delete permanently" data-id="${data.id}" data-action="delete" style="margin-left:8px;font-size:1rem">🗑</button>`;
     let statusBadge;
     if (revoked) statusBadge = '<span class="badge" style="background:#f1e1e1;color:#8a6d6d">Revoked</span>';
     else if (expired) statusBadge = '<span class="badge" style="background:#f3e3e3;color:#9b4b4b">Expired</span>';
@@ -290,9 +292,22 @@ function renderTable() {
         <div style="font-size:0.72rem;color:${ti.color}">${ti.text}</div>
       </td>
       <td>${added}</td>
-      <td>${actionBtn}</td>
+      <td style="white-space:nowrap">${actionBtn}${deleteBtn}</td>
     `;
     body.appendChild(tr);
+  });
+  body.querySelectorAll('[data-action="delete"]').forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = allUsers.filter((u) => u.id === btn.dataset.id)[0];
+      const email = row ? row.email : "this account";
+      // Full delete = remove the access record entirely (can't be restored).
+      // The underlying Firebase Auth login can only be erased from the
+      // Firebase console (Authentication → Users) — a static site has no
+      // Admin SDK to delete another user's credential.
+      if (!confirm("Permanently delete " + email + "?\n\nThis removes their access record entirely and CANNOT be undone (unlike Revoke). To also erase their login itself, delete them in Firebase Console → Authentication → Users.")) return;
+      await deleteDoc(doc(db, "allowedUsers", btn.dataset.id));
+      await loadUsers();
+    });
   });
   body.querySelectorAll(".trial-input").forEach((inp) => {
     inp.addEventListener("change", async () => {
