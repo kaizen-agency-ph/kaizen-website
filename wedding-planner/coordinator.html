@@ -440,9 +440,46 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     toggle.addEventListener("click", function(){ panel.style.display = (panel.style.display === "none" ? "block" : "none"); });
     panel.querySelector("#wd-support-x").addEventListener("click", function(){ panel.style.display = "none"; });
   }
+  function showOnboarding(steps){
+    var overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(40,30,44,.55);z-index:1001;display:flex;align-items:center;justify-content:center;padding:16px;font-family:'Outfit',system-ui,sans-serif;";
+    var card = document.createElement("div");
+    card.style.cssText = "background:#fff;border-radius:18px;padding:26px 24px 20px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(40,30,44,.35);color:#3A2E3F;";
+    var i = 0;
+    function done(){ overlay.remove(); }
+    function draw(){
+      var s = steps[i];
+      card.innerHTML =
+        "<div style='font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#A8657C;font-weight:600;margin-bottom:8px'>Getting started \u00b7 " + (i+1) + " of " + steps.length + "</div>"
+        + "<h2 style='font-family:Fraunces,Georgia,serif;font-weight:500;font-size:1.5rem;margin:0 0 10px'>" + s.title + "</h2>"
+        + "<div style='font-size:14px;line-height:1.55;color:#5c5060;margin-bottom:22px'>" + s.body + "</div>"
+        + "<div style='display:flex;align-items:center;justify-content:space-between;gap:10px'>"
+        +   "<button id='ob-skip' style='background:none;border:none;color:#7A6B79;font-size:13px;cursor:pointer;padding:6px'>Skip</button>"
+        +   "<div style='display:flex;gap:8px'>"
+        +     (i > 0 ? "<button id='ob-back' style='padding:9px 14px;border:1px solid #EBDDD8;border-radius:9px;background:#fff;color:#3A2E3F;font-size:14px;cursor:pointer'>Back</button>" : "")
+        +     "<button id='ob-next' style='padding:9px 18px;border:none;border-radius:9px;background:#8C4F66;color:#fff;font-size:14px;cursor:pointer'>" + (i === steps.length - 1 ? "Get started" : "Next") + "</button>"
+        +   "</div>"
+        + "</div>";
+      var sk = card.querySelector("#ob-skip"); if(sk) sk.onclick = done;
+      var bk = card.querySelector("#ob-back"); if(bk) bk.onclick = function(){ i--; draw(); };
+      var nx = card.querySelector("#ob-next"); if(nx) nx.onclick = function(){ if(i === steps.length - 1) done(); else { i++; draw(); } };
+    }
+    draw();
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+  }
+  var COORD_ONBOARDING = [
+    { title: "Welcome \ud83c\udf89", body: "This is your coordination dashboard \u2014 manage every client's wedding in one place." },
+    { title: "Run your book", body: "Add a wedding, then click its card to open the full planner. Update the <b>paid</b> amount right on each card, and save reusable <b>package tiers</b> on the Client tab." },
+    { title: "Keep it safe", body: "Everything saves in this browser. Use <b>Export all</b> to back up your whole book, and <b>Help &amp; feedback</b> (bottom-left) to reach us anytime." }
+  ];
   requireAuth((user, access) => {
     document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Coordinator";
     showSupportWidget();
+    try {
+      var obKey = "wd-onboarded-" + user.uid;
+      if(!localStorage.getItem(obKey)){ localStorage.setItem(obKey, "1"); showOnboarding(COORD_ONBOARDING); }
+    } catch(e){}
     if(access.trialEndsAt){
       var msLeft = Number(access.trialEndsAt) - Date.now();
       if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
