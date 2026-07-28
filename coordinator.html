@@ -408,7 +408,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     if(document.getElementById("wd-trial")) return;
     var box = document.createElement("div");
     box.id = "wd-trial";
-    box.style.cssText = "position:fixed;left:16px;bottom:16px;z-index:45;width:300px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #EBDDD8;border-radius:14px;box-shadow:0 10px 30px rgba(58,46,63,.22);padding:14px 34px 14px 16px;font-family:'Outfit',system-ui,sans-serif;color:#3A2E3F;font-size:13px;line-height:1.45;";
+    box.style.cssText = "position:fixed;left:16px;bottom:78px;z-index:45;width:300px;max-width:calc(100vw - 32px);background:#fff;border:1px solid #EBDDD8;border-radius:14px;box-shadow:0 10px 30px rgba(58,46,63,.22);padding:14px 34px 14px 16px;font-family:'Outfit',system-ui,sans-serif;color:#3A2E3F;font-size:13px;line-height:1.45;";
     box.innerHTML = "<button aria-label='Dismiss' style='position:absolute;top:8px;right:10px;border:none;background:none;font-size:17px;line-height:1;color:#7A6B79;cursor:pointer;padding:0'>\u00d7</button>"
       + "<div style='font-weight:600;margin-bottom:4px;color:#8C4F66'>Trial ending soon</div>"
       + "<div>Your free trial ends within a day. Renew to keep your access.</div>";
@@ -418,8 +418,31 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     });
     document.body.appendChild(box);
   }
+  function showSupportWidget(){
+    if(document.getElementById("wd-support")) return;
+    var wrap = document.createElement("div");
+    wrap.id = "wd-support";
+    wrap.style.cssText = "position:fixed;left:16px;bottom:16px;z-index:44;font-family:'Outfit',system-ui,sans-serif;display:flex;flex-direction:column;align-items:flex-start;gap:10px;";
+    var panel = document.createElement("div");
+    panel.style.cssText = "display:none;position:relative;background:#fff;border:1px solid #EBDDD8;border-radius:14px;box-shadow:0 10px 30px rgba(58,46,63,.22);padding:16px 16px 14px;width:280px;max-width:calc(100vw - 32px);color:#3A2E3F;font-size:13px;line-height:1.45;";
+    panel.innerHTML =
+      "<button id='wd-support-x' aria-label='Close' style='position:absolute;top:8px;right:10px;border:none;background:none;font-size:16px;line-height:1;color:#7A6B79;cursor:pointer;padding:0'>\u00d7</button>"
+      + "<div style='font-weight:600;margin-bottom:4px;color:#8C4F66'>Questions, bugs or ideas?</div>"
+      + "<div style='margin-bottom:12px;color:#7A6B79'>Found a bug, have a question, or want a new feature? Reach out \u2014 we'd love to hear from you.</div>"
+      + "<a href='https://www.facebook.com/people/Kaizen-Agency/61558492156597/' target='_blank' rel='noopener' style='display:block;text-align:center;text-decoration:none;background:#8C4F66;color:#fff;padding:10px;border-radius:9px;font-weight:500;margin-bottom:8px'>Message us on Facebook</a>"
+      + "<a href='mailto:benlot.vincentcarl@gmail.com' style='display:block;text-align:center;text-decoration:none;background:#fff;color:#8C4F66;border:1px solid #EBDDD8;padding:10px;border-radius:9px;font-weight:500'>Email us</a>";
+    var toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.style.cssText = "cursor:pointer;background:#fff;color:#8C4F66;border:1px solid #EBDDD8;box-shadow:0 4px 14px rgba(58,46,63,.18);border-radius:999px;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;";
+    toggle.innerHTML = "<span>\ud83d\udcac</span><span>Help &amp; feedback</span>";
+    wrap.appendChild(panel); wrap.appendChild(toggle);
+    document.body.appendChild(wrap);
+    toggle.addEventListener("click", function(){ panel.style.display = (panel.style.display === "none" ? "block" : "none"); });
+    panel.querySelector("#wd-support-x").addEventListener("click", function(){ panel.style.display = "none"; });
+  }
   requireAuth((user, access) => {
     document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Coordinator";
+    showSupportWidget();
     if(access.trialEndsAt){
       var msLeft = Number(access.trialEndsAt) - Date.now();
       if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
