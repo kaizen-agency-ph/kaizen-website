@@ -330,18 +330,6 @@
 .wp-inspo .wp-thumb, .wp-inspo .wp-addimg{ width:88px; height:88px; }
 .wp-inspo .wp-addimg{ font-size:26px; }
 
-/* Floating export button + reminder bubble */
-.wp-fab{ position:fixed; right:20px; bottom:20px; z-index:35; display:flex; flex-direction:column; align-items:flex-end; gap:10px; font-family:'Outfit',system-ui,sans-serif; min-height:0; max-width:300px;
-  --rose:#A8657C; --rose-deep:#8C4F66; --rose-soft:#F5E7EC; --gold:#B8902F; --card:#FFFFFF; --line:#EBDDD8; --ink:#3A2E3F; --ink-soft:#7A6B79; }
-.wp-fab-btn{ position:relative; font:inherit; font-weight:600; font-size:14px; cursor:pointer; border:none; background:var(--rose-deep); color:#fff; padding:13px 20px; border-radius:999px; box-shadow:0 6px 20px rgba(140,79,102,.4); display:flex; align-items:center; gap:6px; }
-.wp-fab-btn:hover{ filter:brightness(1.07); }
-.wp-fab-dot{ position:absolute; top:-3px; right:-3px; width:14px; height:14px; border-radius:50%; background:var(--gold); border:2px solid #fff; }
-.wp-fab-bubble{ position:relative; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; max-width:280px; box-shadow:0 10px 34px rgba(58,46,63,.22); color:var(--ink); font-size:13px; animation:wp-fade .25s ease both; }
-.wp-fab-bubble-txt{ line-height:1.4; margin-bottom:10px; padding-right:16px; }
-.wp-fab-bubble-btns{ display:flex; gap:8px; }
-.wp-fab-bubble-btns .wp-btn{ padding:8px 13px; font-size:13px; }
-.wp-fab-bubble-x{ position:absolute; top:8px; right:10px; border:none; background:none; cursor:pointer; color:var(--ink-soft); font-size:16px; line-height:1; padding:0; }
-.wp-fab-bubble-x:hover{ color:var(--rose-deep); }
 
 /* Decor palette + props */
 .wp-decorpalette{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
@@ -471,7 +459,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   var COORD_ONBOARDING = [
     { title: "Welcome \ud83c\udf89", body: "This is your coordination dashboard \u2014 manage every client's wedding in one place." },
     { title: "Run your book", body: "Add a wedding, then click its card to open the full planner. Update the <b>paid</b> amount right on each card, and save reusable <b>package tiers</b> on the Client tab." },
-    { title: "Keep it safe", body: "Everything saves in this browser. Use <b>Export all</b> to back up your whole book, and <b>Help &amp; feedback</b> (bottom-left) to reach us anytime." }
+    { title: "Saved automatically", body: "Your whole book saves to your account and syncs across devices — sign in anywhere and it's there. Use <b>Help &amp; feedback</b> (bottom-left) to reach us anytime." }
   ];
   requireAuth((user, access) => {
     document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Coordinator";
@@ -637,20 +625,6 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     try { localStorage.setItem(BIZ_KEY, JSON.stringify(biz)); saveError = false; }
     catch(e){ saveError = true; updateFoot(); }
     if(window.__wdCloudSave){ try { window.__wdCloudSave(JSON.stringify(biz)); } catch(e){} } // mirror to the cloud (debounced in the auth module)
-    onAfterSave();
-  }
-  var changesSinceExport = 0, CHANGE_THRESHOLD = 25, bubbleSnoozeUntil = 0;
-  function onAfterSave(){
-    if(typeof refreshExportFab === "function") refreshExportFab();
-    if(typeof hasUnsaved !== "function") return;
-    if(hasUnsaved() && planHasContent()){
-      changesSinceExport = (changesSinceExport | 0) + 1;
-      if(changesSinceExport >= CHANGE_THRESHOLD && Date.now() >= (bubbleSnoozeUntil || 0)){
-        showBubble("💾 You've made a lot of changes — export " + (COORD ? "your book" : "your plan") + " so you don't lose them.");
-      }
-    } else if(!hasUnsaved()){
-      changesSinceExport = 0;
-    }
   }
 
   var biz = loadBiz();
@@ -847,8 +821,8 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   var footEl = null;
   function footText(){
     return saveError
-      ? "Couldn't auto-save — the plan may be too large, or this browser blocks storage for local files. Use Export in Details to keep a backup."
-      : "Your plan saves automatically in this browser. Use Export in Details to back up or move devices.";
+      ? "Couldn't save just now — check your connection. Your latest changes are kept on this device and will sync when you're back online."
+      : "Your plan saves to your account automatically and syncs across devices.";
   }
   function footer(){ footEl = el("div", { class:"wp-foot" }, footText()); return footEl; }
   function updateFoot(){ if(footEl) footEl.textContent = footText(); }
@@ -1126,33 +1100,9 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     f.appendChild(bgCard);
 
     var bk = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
-    bk.appendChild(el("div", { class:"eyebrow" }, "Back up & move devices"));
-    bk.appendChild(el("p", { style:{ fontSize:"13px", color:"var(--ink-soft)", margin:"10px 0 16px", maxWidth:"560px" } },
-      "Export saves your whole plan \u2014 details, budget, vendors, photos, and tasks \u2014 to a file you can keep or send to yourself. On another device, open this planner and import that file to pick up where you left off."));
-    var row = el("div", { style:{ display:"flex", gap:"10px", flexWrap:"wrap", alignItems:"center" } });
-    row.appendChild(el("button", { class:"wp-btn", onClick: exportPlan }, "Export plan"));
-    var imp = el("label", { class:"wp-btn ghost", style:{ display:"inline-block" } }, "Import plan");
-    var impInput = el("input", { type:"file", accept:"application/json,.json", style:{ display:"none" } });
-    impInput.addEventListener("change", function(e){ importPlan(e.target.files[0]); e.target.value = ""; });
-    imp.appendChild(impInput);
-    row.appendChild(imp);
-    bk.appendChild(row);
-    if(ioMsg){
-      bk.appendChild(el("div", { style:{ marginTop:"14px", fontSize:"13px", fontWeight:500, color: ioMsg.ok ? "var(--sage)" : "var(--rose-deep)" } }, ioMsg.text));
-    }
-    var unsaved = hasUnsaved() && planHasContent();
-    var statusBox = el("div", { style:{ marginTop:"14px", display:"flex", alignItems:"center", gap:"8px", flexWrap:"wrap" } });
-    statusBox.appendChild(el("span", { style:{ fontSize:"13px", fontWeight:600, color: unsaved ? "var(--rose-deep)" : "var(--sage)" } },
-      unsaved ? "\u25cf Changes not yet backed up" : "\u2713 Backup up to date"));
-    statusBox.appendChild(el("span", { style:{ fontSize:"12px", color:"var(--ink-soft)" } }, "Last export: " + relTime(lastExportAt)));
-    bk.appendChild(statusBox);
-    if(unsaved){
-      bk.appendChild(el("div", { style:{ fontSize:"12px", color:"var(--ink-soft)", marginTop:"4px" } },
-        "You've made changes since your last backup \u2014 export to update the file you keep."));
-    }
-    var planMB = JSON.stringify(state).length / 1048576;
-    bk.appendChild(el("div", { style:{ marginTop:"14px", fontSize:"12px", color: planMB > 4 ? "var(--rose-deep)" : "var(--ink-soft)" } },
-      "Current plan size: " + (planMB < 0.1 ? "under 0.1" : planMB.toFixed(1)) + " MB" + (planMB > 4 ? " \u2014 getting large. Remove a few photos or export a backup to be safe." : "")));
+    bk.appendChild(el("div", { class:"eyebrow" }, "Saved automatically"));
+    bk.appendChild(el("p", { style:{ fontSize:"13px", color:"var(--ink-soft)", margin:"10px 0 0", maxWidth:"560px" } },
+      "Your whole plan \u2014 details, budget, vendors, photos, and tasks \u2014 saves to your account as you go and syncs across devices. Just sign in on any device to pick up where you left off. Nothing to export."));
     f.appendChild(bk);
     return f;
   }
@@ -1287,13 +1237,12 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     bubble.appendChild(el("button", { class:"wp-fab-bubble-x", "aria-label":"Dismiss", onClick:dismissBubble }, "\u00d7"));
     bubble.style.display = "block";
   }
-  function showReminder(){ showBubble("\ud83d\udcbe It's been a while since your last backup \u2014 export " + (COORD ? "your book" : "your plan") + " to keep it safe."); }
+  function showReminder(){ showBubble("\ud83d\udcbe Looking to go offline? Export " + (COORD ? "your book" : "your plan") + " and work without internet."); }
   function hideReminder(){ hideBubble(); }
   function maybeRemind(){
     if(!hasUnsaved() || !planHasContent()){ hideReminder(); return; }
     if(Date.now() >= reminderSnoozeUntil) showReminder();
   }
-  setInterval(maybeRemind, 60000);
 
   function importPlan(file){
     if(!file) return;
@@ -2303,7 +2252,6 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 
   function render(){
     closeOverlaysKeepModal();
-    ensureExportFab();
     if(COORD && (appMode === "home" || !active())){
       app.style.removeProperty("--rose"); app.style.removeProperty("--rose-deep"); app.style.removeProperty("--rose-soft");
       app.style.removeProperty("--sage"); app.style.removeProperty("--sage-soft"); app.style.removeProperty("--gold");
@@ -2400,13 +2348,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 
     var bar = el("div", { class:"wp-cobar", style:{ marginTop:"18px" } });
     bar.appendChild(el("button", { class:"wp-btn", onClick:addWedding }, "+ Add wedding"));
-    bar.appendChild(el("button", { class:"wp-btn ghost", onClick:exportPortfolio }, "Export all"));
-    var imp = el("label", { class:"wp-btn ghost", style:{ display:"inline-block" } }, "Import portfolio");
-    var impIn = el("input", { type:"file", accept:"application/json,.json", style:{ display:"none" } });
-    impIn.addEventListener("change", function(e){ importPortfolio(e.target.files[0]); e.target.value = ""; });
-    imp.appendChild(impIn); bar.appendChild(imp);
     wrap.appendChild(bar);
-    if(ioMsg){ wrap.appendChild(el("div", { style:{ marginTop:"10px", fontSize:"13px", fontWeight:500, color: ioMsg.ok ? "var(--sage)" : "var(--rose-deep)" } }, ioMsg.text)); }
 
     if(ws.length === 0){
       wrap.appendChild(el("div", { class:"wp-card", style:{ marginTop:"16px", textAlign:"center", color:"var(--ink-soft)" } }, "No weddings yet. Tap \u201c+ Add wedding\u201d to create your first client's plan."));
@@ -2417,8 +2359,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       wrap.appendChild(grid);
     }
 
-    var unsaved = hasUnsaved() && planHasContent();
-    wrap.appendChild(el("div", { class:"wp-foot" }, (unsaved ? "You have changes not yet exported \u2014 use Export all. " : "") + "Last backup: " + relTime(lastExportAt) + ". Your book saves automatically in this browser."));
+    wrap.appendChild(el("div", { class:"wp-foot" }, "Your book saves to your account automatically and syncs across devices."));
     app.innerHTML = ""; app.appendChild(wrap);
   }
 
@@ -2456,7 +2397,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     btns.appendChild(el("button", { class:"wp-iconbtn", title:"Remove wedding", "aria-label":"Remove wedding", onClick:function(){
       confirmDialog({
         title:"Remove wedding",
-        message:"Remove " + wCouple(w) + " from your book? This permanently deletes this wedding's plan and can't be undone. Export a backup first if you're unsure.",
+        message:"Remove " + wCouple(w) + " from your book? This permanently deletes this wedding's plan and can't be undone.",
         confirmLabel:"Delete wedding",
         onConfirm:function(){
           biz.weddings = biz.weddings.filter(function(x){ return x.id !== w.id; });
