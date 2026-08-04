@@ -9,10 +9,10 @@
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="login-wrap">
-    <div class="login-glow" aria-hidden="true">♥</div>
-    <div class="login-card">
-      <img src="../planner-logo.png" alt="Kaizen Wedding Planner" class="login-logo" />
+  <div class="login-wrap" style="position:relative;overflow:hidden;">
+    <div class="login-glow" aria-hidden="true" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-8deg);font-size:min(64vh,64vw);line-height:1;color:#A8657C;opacity:.06;pointer-events:none;user-select:none;z-index:0;">♥</div>
+    <div class="login-card" style="position:relative;z-index:1;">
+      <img src="../planner-logo.png" alt="Kaizen Wedding Planner" class="login-logo" style="display:block;width:82%;max-width:240px;height:auto;margin:0 auto 18px;" />
       <p class="sub">Sign in to your planner</p>
       <form id="login-form">
         <input type="email" id="email" placeholder="Email" required autocomplete="username" />
