@@ -401,7 +401,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   </span>
 </div>
 <script type="module">
-  import { requireAuth, logout, openChangePasswordDialog } from "./js/auth.js";
+  import { requireAuth, logout, openChangePasswordDialog, cloudLoad, cloudSave } from "./js/auth.js";
   function showTrialPopup(){
     var todayKey = new Date().toISOString().slice(0, 10);
     try { if(localStorage.getItem("wd-trial-dismissed") === todayKey) return; } catch(e){}
@@ -484,6 +484,16 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       var msLeft = Number(access.trialEndsAt) - Date.now();
       if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
     }
+    // Cloud sync: pull this account's plan down, then mirror local saves up.
+    var uid = user.uid, cloudTimer = null;
+    window.__wdCloudSave = function(jsonStr){
+      clearTimeout(cloudTimer);
+      cloudTimer = setTimeout(function(){ cloudSave(uid, jsonStr).catch(function(e){ console.error("Cloud save failed:", e); }); }, 1200);
+    };
+    cloudLoad(uid).then(function(docData){
+      if(docData && docData.data && window.__wdApplyCloud){ window.__wdApplyCloud(docData.data); }
+      else if(window.__wdGetData){ cloudSave(uid, window.__wdGetData()).catch(function(e){ console.error("Cloud seed failed:", e); }); }
+    });
   }, { allowedRoles: ["couple"] });
   document.getElementById("wd-change-pass").addEventListener("click", function(e){ e.preventDefault(); openChangePasswordDialog(); });
   document.getElementById("wd-logout").addEventListener("click", function(e){ e.preventDefault(); logout(); });
@@ -619,6 +629,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function save(){
     try { localStorage.setItem(BIZ_KEY, JSON.stringify(biz)); saveError = false; }
     catch(e){ saveError = true; updateFoot(); }
+    if(window.__wdCloudSave){ try { window.__wdCloudSave(JSON.stringify(biz)); } catch(e){} } // mirror to the cloud (debounced in the auth module)
     onAfterSave();
   }
   var changesSinceExport = 0, CHANGE_THRESHOLD = 25, bubbleSnoozeUntil = 0;
@@ -646,6 +657,25 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     appMode = "wedding";
   }
   save();
+
+  // Cloud sync bridge: the auth module (which holds Firestore) calls these to
+  // pull this account's plan down on login and to hand local saves back up.
+  window.__wdGetData = function(){ try { return JSON.stringify(biz); } catch(e){ return null; } };
+  window.__wdApplyCloud = function(jsonStr){
+    var obj; try { obj = JSON.parse(jsonStr); } catch(e){ return; }
+    biz = normalizeBiz(obj);
+    if(!COORD){
+      if(!biz.weddings.length){ biz.weddings.push(wrapWedding(seed())); }
+      biz.activeId = biz.weddings[0].id;
+      state = biz.weddings[0].plan;
+      appMode = "wedding";
+    } else {
+      appMode = "home"; biz.activeId = null;
+      state = biz.weddings[0] ? biz.weddings[0].plan : seed();
+    }
+    try { localStorage.setItem(BIZ_KEY, JSON.stringify(biz)); } catch(e){}
+    render();
+  };
 
   /* DOM builder */
   function el(tag, attrs, children){

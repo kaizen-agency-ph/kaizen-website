@@ -10,7 +10,7 @@ Every account has a `role` of `couple`, `coordinator`, or `admin`, set when an a
 
 If a couple account somehow lands on `coordinator.html` (or vice versa) — e.g. by guessing the URL — the app checks their role and bounces them to their correct page automatically.
 
-Note: `couple.html` and `coordinator.html` save their wedding planning data in the browser's `localStorage`, not in Firestore. Firestore's only job is the login gate (deciding who gets in and which role they have) — it doesn't store checklist/budget/guest data. That means each device keeps its own copy of the data; there's no cross-device sync built in yet.
+Note: each account's wedding plan is now stored in Firestore at `plans/{uid}` and syncs across devices automatically — no export needed. The browser's `localStorage` is kept as an instant/offline cache, and the Export button remains an optional backup. The security rule for `plans/{uid}` (in `firestore.rules`) must be published for this to work — see step 3 / the "Cloud sync" note below. Heads-up: Firestore caps a single document at 1 MiB, so a plan crammed with many photos could hit that ceiling; the app already compresses images, but very photo-heavy plans may need Firebase Storage later.
 
 
 This app is static (HTML/CSS/JS) so GitHub Pages can host it for free. Login and the admin panel run on Firebase, also free at this scale (Spark plan). Follow these steps in order — steps 1-4 happen once, before anything goes live.

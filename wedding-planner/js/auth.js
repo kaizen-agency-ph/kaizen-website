@@ -19,7 +19,9 @@ import {
 import {
   getFirestore,
   doc,
-  getDoc
+  getDoc,
+  setDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
@@ -46,6 +48,28 @@ export const db = getFirestore(app);
 // namespace each account's data. login() awaits this before signing in so the
 // persistence mode is applied first.
 const persistenceReady = setPersistence(auth, browserLocalPersistence).catch(() => {});
+
+// ---- Cloud sync (Firestore) --------------------------------------------
+// Each account's whole plan is stored as one JSON string in plans/{uid} so it
+// syncs across devices and browsers — no export needed. Stored as a string to
+// avoid Firestore's nested-array / data-type constraints; the only limit that
+// matters is the 1 MiB per-document cap (watch heavy photo use).
+export async function cloudLoad(uid) {
+  try {
+    const snap = await getDoc(doc(db, "plans", uid));
+    return snap.exists() ? snap.data() : null; // { data: "<json>", savedAt }
+  } catch (e) {
+    console.error("Cloud load failed:", e);
+    return null;
+  }
+}
+export async function cloudSave(uid, jsonStr) {
+  return setDoc(doc(db, "plans", uid), {
+    data: jsonStr,
+    savedAt: Date.now(),
+    updatedAt: serverTimestamp()
+  });
+}
 
 /**
  * Looks up allowedUsers/{uid}. Returns the doc data ({email, role,

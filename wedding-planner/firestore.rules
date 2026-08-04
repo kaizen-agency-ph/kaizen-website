@@ -14,11 +14,9 @@ rules_version = '2';
 //    / "revoke access" is enforced server-side (not just hidden in
 //    the UI).
 //
-// Note: couple.html and coordinator.html store the actual wedding
-// planning data (checklist, budget, guests, seating, etc.) in the
-// browser's localStorage, not in Firestore — so there's no per-user
-// data collection to protect here. Firestore's only job in this app
-// is the login gate above.
+// Note: plans/{uid} holds each account's full wedding plan (JSON),
+// synced to the cloud so it follows the user across devices. Each user
+// can read and write ONLY their own plan document.
 // ============================================================
 
 service cloud.firestore {
@@ -49,6 +47,14 @@ service cloud.firestore {
     // regular couple/coordinator accounts never need to read this.
     match /settings/{docId} {
       allow read, write: if isAdmin();
+    }
+
+    // plans/{uid} is each account's cloud-synced wedding plan. Only the owner
+    // (and only while still an allowed, non-revoked user) can read or write it.
+    match /plans/{userId} {
+      allow read, write: if request.auth != null &&
+        request.auth.uid == userId &&
+        isAllowed();
     }
   }
 }
