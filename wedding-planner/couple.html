@@ -54,8 +54,9 @@
 .wp-nav button[aria-current="true"]{ background:var(--ink); color:#fff;
   border-color:var(--ink); }
 
-/* View animation */
-.wp-view{ animation:wp-fade .32s ease both; }
+/* View animation — only applied on tab change (class added in render), so
+   in-place edits no longer replay the fade / flash. */
+.wp-anim{ animation:wp-fade .32s ease both; }
 @keyframes wp-fade{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
 
 /* Cards & grid */
@@ -376,7 +377,17 @@
   .wp-brow{ grid-template-columns:1fr 80px 80px 30px; }
 }
 @media (prefers-reduced-motion:reduce){
-  .wp-view{ animation:none; } .wp-bar > i{ transition:none; }
+  .wp-anim{ animation:none; } .wp-bar > i{ transition:none; }
+}
+/* Visible keyboard focus */
+.wp button:focus-visible, .wp a:focus-visible, .wp select:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--rose-soft); border-radius:8px; }
+#wd-topbar a:focus-visible{ outline:2px solid #8C4F66; outline-offset:2px; border-radius:4px; }
+/* Responsive top bar — hide the email and shrink the logo so the links fit on phones */
+@media (max-width:640px){
+  #wd-topbar{ padding:8px 14px !important; }
+  #wd-topbar img{ height:30px !important; }
+  #wd-user-email{ display:none !important; }
+  #wd-change-pass{ margin-right:12px !important; }
 }
 
 html,body{ margin:0; padding:0; background:#FBF5F4; }
@@ -768,6 +779,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   /* ---------- app shell ---------- */
   var app = document.getElementById("app");
   var tab = "overview";
+  var lastRenderedTab = null;
   var ioMsg = null;
   var headBgImg = null;
   var seatZoom = 1;
@@ -2251,10 +2263,16 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 
   function render(){
     closeOverlaysKeepModal();
+    // Preserve scroll on in-place re-renders (edits); only fade + jump to top
+    // when the tab actually changes, so editing doesn't blink or bounce.
+    var _sy = window.scrollY || document.documentElement.scrollTop || 0;
+    var _animate = (tab !== lastRenderedTab);
     if(COORD && (appMode === "home" || !active())){
       app.style.removeProperty("--rose"); app.style.removeProperty("--rose-deep"); app.style.removeProperty("--rose-soft");
       app.style.removeProperty("--sage"); app.style.removeProperty("--sage-soft"); app.style.removeProperty("--gold");
       renderHome();
+      lastRenderedTab = "@home";
+      window.scrollTo(0, _sy);
       return;
     }
     if(!COORD && tab === "client") tab = "overview";
@@ -2270,12 +2288,14 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     }
     wrap.appendChild(header());
     wrap.appendChild(nav());
-    var v = el("div", { class:"wp-view" });
+    var v = el("div", { class:"wp-view" + (_animate ? " wp-anim" : "") });
     v.appendChild(VIEW[tab]());
     wrap.appendChild(v);
     wrap.appendChild(footer());
     app.innerHTML = "";
     app.appendChild(wrap);
+    lastRenderedTab = tab;
+    window.scrollTo(0, _animate ? 0 : _sy);
     if(fsActive){ if(tab === "seating") renderFullscreen(); else closeSeatingFullscreen(); }
   }
   function closeOverlaysKeepModal(){ /* overlays live on body; render only rebuilds #app, so nothing to do */ }
