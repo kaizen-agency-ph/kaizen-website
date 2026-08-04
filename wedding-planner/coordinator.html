@@ -511,16 +511,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function seed(){
     return {
       details: { partner1:"", partner2:"", date:"", venue:"", guests:"", theme:"", currency:"₱", notes:"", bg:"", bgPosX:50, bgPosY:50, bgZoom:100, themePrimary:"#A8657C", themeSecondary:"#6F8676", themeAccent:"#B8902F" },
-      budget: { total:"", items:[
-        {id:uid(),label:"Venue",est:"",act:""},
-        {id:uid(),label:"Catering",est:"",act:""},
-        {id:uid(),label:"Photography & video",est:"",act:""},
-        {id:uid(),label:"Attire",est:"",act:""},
-        {id:uid(),label:"Flowers & decor",est:"",act:""},
-        {id:uid(),label:"Music & entertainment",est:"",act:""},
-        {id:uid(),label:"Invitations",est:"",act:""},
-        {id:uid(),label:"Cake & desserts",est:"",act:""}
-      ]},
+      budget: { total:"" },
       tasks: [
         {id:uid(),title:"Set the date & book the venue",cat:"Venue",due:"",status:"todo",notes:"",images:[]},
         {id:uid(),title:"Draft the guest list",cat:"Guests",due:"",status:"todo",notes:"",images:[]},
@@ -531,13 +522,15 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
         {id:uid(),title:"Got engaged",cat:"",due:"",status:"done",notes:"",images:[]}
       ],
       vendors: { categories:[
-        {id:uid(),label:"Venue",chosenId:null,options:[]},
-        {id:uid(),label:"Catering",chosenId:null,options:[]},
-        {id:uid(),label:"Photography & video",chosenId:null,options:[]},
-        {id:uid(),label:"Florist",chosenId:null,options:[]},
-        {id:uid(),label:"Music / DJ",chosenId:null,options:[]},
-        {id:uid(),label:"Cake",chosenId:null,options:[]},
-        {id:uid(),label:"Hair & makeup",chosenId:null,options:[]}
+        {id:uid(),label:"Venue",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Catering",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Photography & video",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Flowers & decor",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Music / DJ",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Cake & desserts",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Attire",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Hair & makeup",chosenId:null,options:[],est:"",act:""},
+        {id:uid(),label:"Invitations",chosenId:null,options:[],est:"",act:""}
       ]},
       seating: { guests: [], tables: [], props: [], boardW: 1000, boardH: 640, inspo: [] }
     };
@@ -548,19 +541,30 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     if(!o) return s;
     return {
       details: Object.assign({}, s.details, o.details || {}),
-      budget: {
-        total: (o.budget && o.budget.total != null) ? o.budget.total : "",
-        items: (o.budget && Array.isArray(o.budget.items)) ? o.budget.items : s.budget.items
-      },
+      budget: { total: (o.budget && o.budget.total != null) ? o.budget.total : "" },
       tasks: Array.isArray(o.tasks) ? o.tasks.map(function(t){
         return Object.assign({ notes:"", images:[] }, t);
       }) : s.tasks,
-      vendors: (o.vendors && Array.isArray(o.vendors.categories))
-        ? { categories: o.vendors.categories.map(function(c){
-            return { id:c.id||uid(), label:c.label||"", chosenId:c.chosenId||null,
-              options:(c.options||[]).map(function(op){ return Object.assign({images:[],rating:0}, op); }) };
-          }) }
-        : s.vendors,
+      vendors: (function(){
+        // Budget and Vendors share one category list. Each category carries its
+        // vendor options + chosen pick AND its budget est/act amounts.
+        var cats = (o.vendors && Array.isArray(o.vendors.categories))
+          ? o.vendors.categories.map(function(c){
+              return { id:c.id||uid(), label:c.label||"", chosenId:c.chosenId||null,
+                est:(c.est!=null?c.est:""), act:(c.act!=null?c.act:""),
+                options:(c.options||[]).map(function(op){ return Object.assign({images:[],rating:0}, op); }) };
+            })
+          : s.vendors.categories.slice();
+        // Migrate any legacy separate budget lines into the shared list by label.
+        var oldItems = (o.budget && Array.isArray(o.budget.items)) ? o.budget.items : [];
+        oldItems.forEach(function(it){
+          if(!it) return;
+          var m = cats.filter(function(c){ return (c.label||"").toLowerCase() === (it.label||"").toLowerCase(); })[0];
+          if(m){ if(!m.est && it.est) m.est = it.est; if(!m.act && it.act) m.act = it.act; }
+          else if((it.label||"").trim() || it.est || it.act){ cats.push({ id: it.id||uid(), label: it.label||"", chosenId:null, est: it.est||"", act: it.act||"", options:[] }); }
+        });
+        return { categories: cats };
+      })(),
       seating: (o.seating && Array.isArray(o.seating.guests) && Array.isArray(o.seating.tables))
         ? { boardW: o.seating.boardW || 1000, boardH: o.seating.boardH || 640, inspo: Array.isArray(o.seating.inspo) ? o.seating.inspo : [], guests: o.seating.guests, tables: o.seating.tables.map(function(t){
             return { id:t.id||uid(), name:t.name||"", shape:t.shape||"round", rot: t.rot||0,
@@ -738,8 +742,8 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     inp.addEventListener("blur", function(){ format(); if(opts.onBlur) opts.onBlur(); });
     return inp;
   }
-  function sumAct(){ return state.budget.items.reduce(function(a,b){ return a + num(b.act); }, 0); }
-  function sumEst(){ return state.budget.items.reduce(function(a,b){ return a + num(b.est); }, 0); }
+  function sumAct(){ return state.vendors.categories.reduce(function(a,b){ return a + num(b.act); }, 0); }
+  function sumEst(){ return state.vendors.categories.reduce(function(a,b){ return a + num(b.est); }, 0); }
   function daysToGo(){
     if(!state.details.date) return null;
     var d = new Date(state.details.date + "T00:00:00");
@@ -1213,8 +1217,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     return !!(d.partner1 || d.partner2 || d.venue || d.bg || d.notes
       || (state.seating.guests && state.seating.guests.length)
       || (state.seating.tables && state.seating.tables.length)
-      || state.budget.items.some(function(i){ return i.act || i.est; })
-      || state.vendors.categories.some(function(c){ return c.chosenId; }));
+      || state.vendors.categories.some(function(c){ return c.chosenId || c.act || c.est || (c.options && c.options.length); }));
   }
   function fabExport(){ if(COORD) exportPortfolio(); else exportPlan(); }
   function ensureExportFab(){
@@ -1321,7 +1324,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     f.appendChild(top);
 
     f.appendChild(el("p", { style:{ fontSize:"12px", color:"var(--ink-soft)", margin:"12px 2px 0" } },
-      "\u201cEstimated\u201d is what you plan or were quoted; \u201cActual\u201d is what you\u2019ve actually paid. \u201cSpent so far\u201d and \u201cRemaining\u201d add up the Actual column. Vendors you\u2019ve chosen and marked done in Tasks appear here automatically as booked costs (highlighted in green)."));
+      "\u201cEstimated\u201d is what you plan or were quoted; \u201cActual\u201d is what you\u2019ve actually paid. \u201cSpent so far\u201d and \u201cRemaining\u201d add up the Actual column. Categories are shared with the Vendors tab \u2014 choose a vendor there and its price fills Estimated automatically; once its task is marked Done in Tasks, the price also fills Actual. Vendor-driven rows are shown in green and edited from Vendors."));
 
     var prog = el("div", { class:"wp-card", style:{ marginTop:"16px" } });
     var prow = el("div", { style:{ display:"flex", justifyContent:"space-between", fontSize:"13px", color:"var(--ink-soft)" } });
@@ -1339,31 +1342,34 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     head.appendChild(el("span", {}));
     list.appendChild(head);
 
-    state.budget.items.forEach(function(it){
+    state.vendors.categories.forEach(function(cat){
+      var opt = cat.chosenId ? cat.options.filter(function(o){ return o.id === cat.chosenId; })[0] : null;
+      var price = opt ? parsePrice(opt.price) : 0;
+      var auto = !!(cat.chosenId && price > 0); // amounts driven by the chosen vendor
+      var task = state.tasks.filter(function(t){ return t.vendorKey === cat.id; })[0];
+      var booked = task && task.status === "done";
       var row = el("div", { class:"wp-brow", style:{ marginBottom:"10px" } });
-      if(it.vendorCatId){
-        // Auto line from a booked vendor — read-only; managed in Vendors/Tasks.
+      if(auto){
+        // Amounts come from the chosen vendor — read-only here; edit in Vendors/Tasks.
         var roStyle = { background:"var(--sage-soft)", borderColor:"#CBD8CC" };
-        var labR = el("input", { readonly:"", tabindex:"-1", title:"From a booked vendor — manage it in the Vendors tab", style:roStyle }); labR.value = it.label;
-        var estR = el("input", { readonly:"", tabindex:"-1", placeholder:"—", style:roStyle }); estR.value = it.est || "";
-        var actR = el("input", { readonly:"", tabindex:"-1", title:"Booked vendor cost", style:roStyle }); actR.value = num(it.act) ? fmt(num(it.act)) : "";
-        var tag = el("span", { class:"wp-vstat booked", title:"Booked vendor", style:{ justifySelf:"center" } }, "✓");
+        var labR = el("input", { readonly:"", tabindex:"-1", title:"Category — rename it in the Vendors tab", style:roStyle }); labR.value = cat.label;
+        var estR = el("input", { readonly:"", tabindex:"-1", title:"Estimated from your chosen vendor", style:roStyle }); estR.value = num(cat.est) ? fmt(num(cat.est)) : "";
+        var actR = el("input", { readonly:"", tabindex:"-1", title: booked ? "Booked — actual cost" : "Fills once you mark the task Done in Tasks", style:roStyle }); actR.value = num(cat.act) ? fmt(num(cat.act)) : "";
+        var tag = el("span", { class:"wp-vstat " + (booked ? "booked" : "booking"), title: booked ? "Booked" : "Estimated from vendor", style:{ justifySelf:"center" } }, booked ? "✓" : "~");
         row.appendChild(labR); row.appendChild(estR); row.appendChild(actR); row.appendChild(tag);
         list.appendChild(row);
         return;
       }
-      var lab = el("input", { placeholder:"Category" }); lab.value = it.label;
-      lab.addEventListener("input", function(){ it.label = lab.value; save(); });
-      var est = bindMoney(el("input", { placeholder:"0" }), function(){ return it.est; }, function(v){ it.est = v; save(); recompute(); });
-      var act = bindMoney(el("input", { placeholder:"0" }), function(){ return it.act; }, function(v){ it.act = v; save(); recompute(); });
-      var del = el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){
-        state.budget.items = state.budget.items.filter(function(x){ return x.id !== it.id; }); save(); render();
-      } }, "\u00d7");
+      var lab = el("input", { placeholder:"Category" }); lab.value = cat.label;
+      lab.addEventListener("input", function(){ cat.label = lab.value; save(); });
+      var est = bindMoney(el("input", { placeholder:"0" }), function(){ return cat.est; }, function(v){ cat.est = v; save(); recompute(); });
+      var act = bindMoney(el("input", { placeholder:"0" }), function(){ return cat.act; }, function(v){ cat.act = v; save(); recompute(); });
+      var del = el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){ deleteCategory(cat.id); } }, "\u00d7");
       row.appendChild(lab); row.appendChild(est); row.appendChild(act); row.appendChild(del);
       list.appendChild(row);
     });
     list.appendChild(el("button", { class:"wp-btn ghost", style:{ marginTop:"6px" }, onClick:function(){
-      state.budget.items.push({ id:uid(), label:"", est:"", act:"" }); save(); render();
+      state.vendors.categories.push({ id:uid(), label:"", chosenId:null, options:[], est:"", act:"" }); save(); render();
     } }, "+ Add category"));
     f.appendChild(list);
 
@@ -1373,33 +1379,37 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 
   /* ---------- Vendor → Budget sync ---------- */
   function parsePrice(p){ var n = parseFloat(String(p == null ? "" : p).replace(/[^0-9.]/g, "")); return isNaN(n) ? 0 : n; }
-  // Returns booking info for a category IF it's been chosen AND its linked
-  // "book & confirm" task is marked Done; otherwise null.
-  function bookedVendorFor(catId){
-    var c = find(state.vendors.categories, catId);
-    if(!c || !c.chosenId) return null;
-    var task = state.tasks.filter(function(t){ return t.vendorKey === catId; })[0];
-    if(!task || task.status !== "done") return null;
-    var opt = c.options.filter(function(o){ return o.id === c.chosenId; })[0];
-    if(!opt) return null;
-    return { price: parsePrice(opt.price), name: (opt.name || ""), label: (c.label || "") };
-  }
-  // Keeps the budget in sync with booked vendors: each category chosen AND
-  // whose task is Done gets an auto, read-only budget line carrying the
-  // vendor's price into Actual. Lines vanish if the booking is undone.
-  function syncVendorBudget(){
-    if(!state.budget || !Array.isArray(state.budget.items)) return;
-    state.budget.items = state.budget.items.filter(function(it){
-      return !it.vendorCatId || !!bookedVendorFor(it.vendorCatId);
-    });
+  // Budget and Vendors share one category list. For a category with a chosen
+  // vendor that has a price: the price fills Estimated as soon as it's chosen
+  // (task To do / In progress), and also fills Actual once its task is Done
+  // (booked). Categories without a chosen (priced) vendor keep whatever the
+  // user typed in the Budget tab.
+  function syncVendorAmounts(){
     state.vendors.categories.forEach(function(c){
-      var b = bookedVendorFor(c.id);
-      if(!b) return;
-      var label = c.label + (b.name ? " — " + b.name : "");
-      var priceStr = b.price ? String(b.price) : "";
-      var existing = state.budget.items.filter(function(it){ return it.vendorCatId === c.id; })[0];
-      if(existing){ existing.label = label; existing.act = priceStr; existing.bookedFromVendor = true; }
-      else { state.budget.items.push({ id: uid(), label: label, est: "", act: priceStr, vendorCatId: c.id, bookedFromVendor: true }); }
+      if(!c.chosenId) return;
+      var opt = c.options.filter(function(o){ return o.id === c.chosenId; })[0];
+      if(!opt) return;
+      var price = parsePrice(opt.price);
+      if(price <= 0) return; // no usable price — leave amounts manual
+      var task = state.tasks.filter(function(t){ return t.vendorKey === c.id; })[0];
+      var done = task && task.status === "done";
+      c.est = String(price);              // chosen → estimated (the quote)
+      c.act = done ? String(price) : "";  // booked (Done) → actual, otherwise clear
+    });
+  }
+  // Shared category delete (used by both Budget and Vendors) — always warns first.
+  function deleteCategory(catId){
+    var cat = find(state.vendors.categories, catId);
+    if(!cat) return;
+    confirmDialog({
+      title: "Delete category",
+      message: "Delete the “" + (cat.label || "Untitled") + "” category? It's removed from both Budget and Vendors — including its vendor options, amounts, and any linked task. This can't be undone.",
+      confirmLabel: "Delete category",
+      onConfirm: function(){
+        state.vendors.categories = state.vendors.categories.filter(function(c){ return c.id !== catId; });
+        state.tasks = state.tasks.filter(function(t){ return t.vendorKey !== catId; });
+        save(); render();
+      }
     });
   }
 
@@ -1468,7 +1478,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       "List every option you're weighing under each category \u2014 say five venues \u2014 with photos, price, contact, and notes. When you decide, tap Choose. That pick is highlighted here, shows on your Overview, and adds a \u201cbook & confirm\u201d card to your Tasks."));
     var addRow = el("div", { style:{ display:"flex", gap:"10px", marginTop:"16px", flexWrap:"wrap" } });
     var newCat = el("input", { placeholder:"Add a category (e.g. Officiant)", style:{ maxWidth:"280px" } });
-    function addCat(){ var v = newCat.value.trim(); if(!v) return; state.vendors.categories.push({ id:uid(), label:v, chosenId:null, options:[] }); save(); render(); }
+    function addCat(){ var v = newCat.value.trim(); if(!v) return; state.vendors.categories.push({ id:uid(), label:v, chosenId:null, options:[], est:"", act:"" }); save(); render(); }
     newCat.addEventListener("keydown", function(e){ if(e.key === "Enter") addCat(); });
     addRow.appendChild(newCat);
     addRow.appendChild(el("button", { class:"wp-btn", onClick:addCat }, "Add category"));
@@ -1485,11 +1495,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       tools.appendChild(el("button", { class:"wp-btn ghost", onClick:function(){
         cat.options.push({ id:uid(), name:"", price:"", contact:"", link:"", notes:"", rating:0, images:[] }); save(); render();
       } }, "+ Add option"));
-      tools.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){
-        state.vendors.categories = state.vendors.categories.filter(function(c){ return c.id !== cat.id; });
-        state.tasks = state.tasks.filter(function(t){ return t.vendorKey !== cat.id; });
-        save(); render();
-      } }, "\u00d7"));
+      tools.appendChild(el("button", { class:"wp-iconbtn", "aria-label":"Remove category", onClick:function(){ deleteCategory(cat.id); } }, "\u00d7"));
       ch.appendChild(tools);
       card.appendChild(ch);
 
@@ -2274,7 +2280,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     }
     if(!COORD && tab === "client") tab = "overview";
     setTheme();
-    syncVendorBudget();
+    syncVendorAmounts();
     var wrap = el("div", { class:"wp-wrap" });
     if(COORD){
       var back = el("div", { class:"wp-backbar" });
