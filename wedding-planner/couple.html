@@ -844,13 +844,21 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   function viewOverview(){
     var f = document.createDocumentFragment();
     var d = daysToGo(), pd = prettyDate();
+    var heroNames = [state.details.partner1, state.details.partner2].filter(Boolean).join(" & ");
+    var heroVenue = effectiveVenue();
     var hero = el("div", { class:"wp-card wp-hero" });
     hero.appendChild(el("div", { class:"eyebrow" }, pd ? "Counting down to" : "Add your date to start the countdown"));
+    if(heroNames){
+      hero.appendChild(el("div", { class:"serif", style:{ fontStyle:"italic", fontSize:"20px", color:"var(--rose-deep)", marginTop:"6px" } }, heroNames));
+    }
     if(d != null){
       hero.appendChild(el("div", { class:"wp-count" }, d > 0 ? String(d) : (d === 0 ? "Today" : "\u2665")));
       hero.appendChild(el("div", { class:"wp-rule" }));
-      var lbl = (d > 1 ? "days to go" : d === 1 ? "one day to go" : d === 0 ? "the big day!" : "already married") + (pd ? (" \u00b7 " + pd) : "");
-      hero.appendChild(el("div", { class:"wp-count-lbl serif", style:{ fontStyle:"italic", fontSize:"18px" } }, lbl));
+      hero.appendChild(el("div", { class:"wp-count-lbl serif", style:{ fontStyle:"italic", fontSize:"18px" } },
+        (d > 1 ? "days to go" : d === 1 ? "one day to go" : d === 0 ? "the big day!" : "already married")));
+      if(pd){
+        hero.appendChild(el("div", { class:"wp-count-lbl", style:{ fontSize:"13px", marginTop:"8px", letterSpacing:".05em", textTransform:"uppercase" } }, pd + (heroVenue ? ("  \u00b7  " + heroVenue) : "")));
+      }
     } else {
       hero.appendChild(el("div", { class:"wp-count-lbl", style:{ marginTop:"18px" } }, "Head to Details to set the wedding date."));
     }
@@ -1492,7 +1500,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
       card.appendChild(ch);
 
       if(cat.options.length === 0){
-        card.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"4px" } }, "No options yet. Add the ones you're comparing."));
+        card.appendChild(el("div", { class:"wp-empty", style:{ marginTop:"4px" } }, "Tap “+ Add option” to list the vendors you're comparing — add their price and it flows into your budget once you choose one."));
       } else {
         var grid = el("div", { class:"wp-vgrid" });
         cat.options.forEach(function(o){

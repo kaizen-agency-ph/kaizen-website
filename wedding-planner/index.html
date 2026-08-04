@@ -10,16 +10,17 @@
 </head>
 <body>
   <div class="login-wrap">
+    <div class="login-glow" aria-hidden="true">♥</div>
     <div class="login-card">
-      <h1>Wedding Planning Dashboard</h1>
-      <p class="sub">Sign in with the account your planner gave you.</p>
+      <img src="../planner-logo.png" alt="Kaizen Wedding Planner" class="login-logo" />
+      <p class="sub">Sign in to your planner</p>
       <form id="login-form">
         <input type="email" id="email" placeholder="Email" required autocomplete="username" />
         <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
         <div class="error" id="error"></div>
-        <button class="btn" type="submit" style="width:100%">Sign In</button>
+        <button class="btn" type="submit" style="width:100%">Sign in</button>
       </form>
-      <p class="hint" style="margin-top:16px">Don't have an account? Ask your admin to add you — accounts aren't self-serve.</p>
+      <p class="hint" style="margin-top:16px">Don't have an account? Ask your planner to add you — accounts aren't self-serve.</p>
     </div>
   </div>
 

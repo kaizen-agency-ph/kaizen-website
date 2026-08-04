@@ -85,20 +85,48 @@ nav a:hover { color: var(--rose-dark); }
 
 .login-wrap {
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16px;
   background: linear-gradient(160deg, var(--blush), var(--bg));
 }
 
+/* Soft oversized heart as ambient background — brand atmosphere, not decoration */
+.login-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  font-size: min(64vh, 64vw);
+  line-height: 1;
+  color: var(--rose);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
 .login-card {
+  position: relative;
+  z-index: 1;
   background: var(--card);
   padding: 40px 36px;
-  border-radius: 14px;
-  box-shadow: 0 10px 40px rgba(169, 99, 111, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(169, 99, 111, 0.18);
   width: 100%;
   max-width: 380px;
   text-align: center;
+}
+
+.login-logo {
+  max-width: 240px;
+  width: 82%;
+  height: auto;
+  display: block;
+  margin: 0 auto 18px;
 }
 
 .login-card h1 {
@@ -109,7 +137,7 @@ nav a:hover { color: var(--rose-dark); }
 
 .login-card p.sub {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   margin-bottom: 24px;
 }
 
