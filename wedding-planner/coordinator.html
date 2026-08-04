@@ -401,7 +401,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   </span>
 </div>
 <script type="module">
-  import { requireAuth, logout, openChangePasswordDialog, cloudLoad, cloudSave } from "./js/auth.js";
+  import { requireAuth, logout, openChangePasswordDialog, cloudLoad, cloudSave, cloudMarkOnboarded } from "./js/auth.js";
   function showTrialPopup(){
     var todayKey = new Date().toISOString().slice(0, 10);
     try { if(localStorage.getItem("wd-trial-dismissed") === todayKey) return; } catch(e){}
@@ -476,10 +476,6 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   requireAuth((user, access) => {
     document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Coordinator";
     showSupportWidget();
-    try {
-      var obKey = "wd-onboarded-" + user.uid;
-      if(!localStorage.getItem(obKey)){ localStorage.setItem(obKey, "1"); showOnboarding(COORD_ONBOARDING); }
-    } catch(e){}
     if(access.trialEndsAt){
       var msLeft = Number(access.trialEndsAt) - Date.now();
       if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
@@ -493,6 +489,12 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     cloudLoad(uid).then(function(docData){
       if(docData && docData.data && window.__wdApplyCloud){ window.__wdApplyCloud(docData.data); }
       else if(window.__wdGetData){ cloudSave(uid, window.__wdGetData()).catch(function(e){ console.error("Cloud seed failed:", e); }); }
+      // First-login onboarding \u2014 tracked in the cloud doc so it shows once per
+      // ACCOUNT, not once per device/browser.
+      if(!(docData && docData.onboarded)){
+        showOnboarding(COORD_ONBOARDING);
+        cloudMarkOnboarded(uid).catch(function(){});
+      }
     });
   }, { allowedRoles: ["coordinator"] });
   document.getElementById("wd-change-pass").addEventListener("click", function(e){ e.preventDefault(); openChangePasswordDialog(); });

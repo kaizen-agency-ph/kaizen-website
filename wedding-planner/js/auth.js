@@ -64,11 +64,17 @@ export async function cloudLoad(uid) {
   }
 }
 export async function cloudSave(uid, jsonStr) {
+  // merge so other fields on the doc (e.g. `onboarded`) are preserved.
   return setDoc(doc(db, "plans", uid), {
     data: jsonStr,
     savedAt: Date.now(),
     updatedAt: serverTimestamp()
-  });
+  }, { merge: true });
+}
+
+// Marks the account as having seen onboarding (once per account, cloud-tracked).
+export async function cloudMarkOnboarded(uid) {
+  return setDoc(doc(db, "plans", uid), { onboarded: true }, { merge: true });
 }
 
 /**
