@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#FFF7EF; --bg-2:#FFEEE0; --surface:#FFFFFF; --surface-2:#FBF1E9;
+    --border:#F0E2D6; --ink:#2A2440; --muted:#8A7F9C;
+    --brand:#6C63FF; --brand-soft:#ECEAFF; --peach:#FF8A5B;
+    --mint:#2FB89B; --coral:#FF6B6B; --honey:#F5B14C;
+    --shadow:0 10px 30px rgba(108,99,255,.10); --shadow-sm:0 4px 14px rgba(108,99,255,.08);
+    --r-lg:26px; --r-md:18px; --r-sm:12px;
+    --display:'Bricolage Grotesque',system-ui,sans-serif; --body:'Plus Jakarta Sans',system-ui,sans-serif;
+  }
+  [data-theme="dark"]{
+    --bg:#1B1830; --bg-2:#221D3B; --surface:#272146; --surface-2:#312A56;
+    --border:#3B3468; --ink:#F1ECFF; --muted:#A99FC6;
+    --brand:#8B84FF; --brand-soft:#322C5C; --peach:#FF9E76;
+    --mint:#43D6B5; --coral:#FF7A7A; --honey:#F7C06A;
+    --shadow:0 12px 34px rgba(0,0,0,.4); --shadow-sm:0 4px 16px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);background:var(--bg);color:var(--ink);
+    line-height:1.55;font-weight:500;font-size:15px;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 12% -5%,var(--bg-2),transparent 42%),radial-gradient(circle at 92% 0%,var(--brand-soft),transparent 38%);
+    background-attachment:fixed;min-height:100vh;transition:background-color .35s,color .35s;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;color:inherit}
+  input,select{font-family:inherit}
+  .wrap{max-width:1160px;margin:0 auto;padding:22px}
+  :focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:6px}
+  .theme-switch:focus-visible{outline-offset:3px}
+  [hidden]{display:none!important}
+
+  h1,h2,h3,.num{font-family:var(--display)}
+  .num{font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+
+  /* Auth top bar */
+  .authbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;background:var(--surface);border-bottom:2px solid var(--border);flex-wrap:wrap;position:sticky;top:0;z-index:40}
+  .authbar-brand{font-family:var(--display);font-weight:600;color:var(--brand);display:flex;align-items:center;gap:8px;font-size:15px}
+  .authbar-right{display:flex;align-items:center;gap:14px;font-size:13px;font-weight:600;color:var(--muted);flex-wrap:wrap}
+  .authbar-right a{color:var(--ink);text-decoration:none}
+  .authbar-right a:hover{color:var(--brand)}
+  .cloud-status{color:var(--mint);font-weight:700;min-width:56px}
+  #auth-loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;font-family:var(--body);color:var(--muted);font-weight:700;gap:10px}
+
+  /* Header */
+  header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:13px}
+  .brand .mark{width:46px;height:46px;border-radius:15px;background:linear-gradient(140deg,var(--brand),var(--peach));display:grid;place-items:center;font-size:24px;box-shadow:var(--shadow-sm)}
+  .brand h1{font-size:23px;font-weight:600;letter-spacing:-.2px}
+  .brand p{font-size:13px;color:var(--muted);font-weight:600}
+  .head-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+
+  .btn{background:var(--surface);color:var(--ink);padding:11px 17px;border-radius:14px;font-weight:700;font-size:14px;border:2px solid var(--border);transition:transform .15s,border-color .15s,background .15s;display:inline-flex;align-items:center;gap:7px;box-shadow:var(--shadow-sm)}
+  .btn:hover{transform:translateY(-2px);border-color:var(--brand)}
+  .btn:active{transform:translateY(0)}
+  .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .btn.primary:hover{border-color:var(--brand);filter:brightness(1.05)}
+
+  .theme-switch{position:relative;width:74px;height:38px;border-radius:20px;background:var(--surface-2);border:2px solid var(--border);cursor:pointer;transition:background .3s;flex:0 0 auto}
+  .theme-switch .knob{position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#FFD86B,#FF9E4A);display:grid;place-items:center;font-size:15px;transition:transform .32s cubic-bezier(.5,1.6,.4,1),background .3s;box-shadow:0 3px 8px rgba(0,0,0,.2)}
+  [data-theme="dark"] .theme-switch .knob{transform:translateX(36px);background:linear-gradient(140deg,#8B84FF,#5A52D6)}
+  .theme-switch .bg-icon{position:absolute;top:50%;transform:translateY(-50%);font-size:13px;opacity:.5}
+  .theme-switch .sun{left:9px} .theme-switch .moon{right:9px}
+
+  .nudge{position:fixed;right:20px;bottom:22px;z-index:55;max-width:322px;display:flex;align-items:flex-start;gap:11px;background:var(--surface);border:2px solid var(--brand);border-radius:16px;padding:14px 15px;box-shadow:var(--shadow);font-size:13px;font-weight:600;animation:pop .3s cubic-bezier(.5,1.5,.4,1)}
+  .nudge .n-ico{font-size:20px;line-height:1.1}
+  .nudge .n-body{flex:1;min-width:0}
+  .nudge .n-txt{margin-bottom:10px;line-height:1.45}
+  .nudge .n-actions{display:flex;gap:8px;align-items:center}
+  .nudge .n-actions .btn{padding:8px 13px;font-size:13px}
+  .nudge .n-x{background:transparent;border:none;color:var(--muted);font-weight:700;font-size:13px;padding:8px 10px;border-radius:9px}
+  .nudge .n-x:hover{color:var(--ink)}
+  @media(max-width:560px){.nudge{left:16px;right:16px;max-width:none}}
+
+  .hero{background:var(--surface);border:2px solid var(--border);border-radius:var(--r-lg);padding:26px 30px;box-shadow:var(--shadow);display:flex;align-items:center;gap:26px;margin-bottom:16px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;bottom:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,var(--brand-soft),transparent 70%);opacity:.7;pointer-events:none}
+  .hero-text{flex:1;min-width:0;position:relative;z-index:1}
+  .greeting{font-size:15px;color:var(--muted);font-weight:700;margin-bottom:2px}
+  .hero .mood-line{font-family:var(--display);font-size:19px;font-weight:500;margin-bottom:14px}
+  .hero .bal-label{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .hero .bal{font-family:var(--display);font-size:46px;font-weight:600;line-height:1.05;letter-spacing:-1px}
+  .bank-indicator{margin-top:8px;font-size:13.5px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+  .bank-indicator b{font-family:var(--display);color:var(--brand)}
+  [data-theme="dark"] .bank-indicator b{color:var(--ink)}
+  .safe-line{margin-top:14px;display:inline-flex;align-items:center;gap:10px;background:var(--brand-soft);border-radius:14px;padding:10px 15px;font-size:13.5px;font-weight:700;flex-wrap:wrap}
+  .safe-line .amt{font-family:var(--display);color:var(--brand)}
+  [data-theme="dark"] .safe-line .amt{color:var(--ink)}
+  .safe-line .sep{opacity:.4}
+  .safe-line.tight{color:var(--coral)}
+
+  .buddy{width:118px;height:118px;flex:0 0 auto;position:relative;z-index:1;cursor:pointer;transition:transform .18s ease;-webkit-tap-highlight-color:transparent}
+  .buddy:hover{transform:scale(1.05)}
+  .buddy:active{transform:scale(.97)}
+  .buddy svg{width:100%;height:100%;overflow:visible}
+  #buddyBounce{transform-box:view-box;transform-origin:60px 104px}
+  .buddy .body{animation:bob 3.6s ease-in-out infinite}
+  .buddy .eye{transform-box:fill-box;transform-origin:center;animation:blink 5.4s infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-6px) rotate(1.5deg)}}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
+
+  .grid{display:grid;gap:16px}
+  .stats{grid-template-columns:repeat(3,1fr);margin-bottom:16px}
+  .card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r-md);padding:20px 22px;box-shadow:var(--shadow-sm)}
+  .stat .label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;margin-bottom:9px;font-weight:700}
+  .stat .value{font-size:27px;font-weight:600}
+  .stat .sub{font-size:12.5px;color:var(--muted);margin-top:5px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .up{color:var(--mint)} .down{color:var(--coral)}
+  .chip{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px}
+  .chip.inc{background:rgba(47,184,155,.16)} .chip.exp{background:rgba(255,107,107,.16)} .chip.sav{background:var(--brand-soft)}
+  .trend{font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+  .trend.good{background:rgba(47,184,155,.16);color:var(--mint)}
+  .trend.bad{background:rgba(255,107,107,.16);color:var(--coral)}
+  .trend.flat{background:var(--surface-2);color:var(--muted)}
+
+  .cols{grid-template-columns:1.35fr 1fr;margin-bottom:16px}
+  @media(max-width:920px){.stats{grid-template-columns:1fr}.cols{grid-template-columns:1fr}.hero{flex-direction:column-reverse;text-align:center;align-items:center}.hero-text{text-align:center}.safe-line{justify-content:center}}
+  @media(max-width:560px){.hero .bal{font-size:38px}}
+
+  .card h2{font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+  .card h2 .mini{font-size:12.5px;color:var(--muted);font-weight:600;font-family:var(--body)}
+  canvas{max-height:250px}
+
+  .budget-row{margin-bottom:15px}
+  .budget-row .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:7px;font-weight:700;gap:8px}
+  .budget-row .cat-name{display:inline-flex;align-items:center;gap:7px;min-width:0}
+  .budget-row .cat-name .ico{font-size:15px}
+  .bar{height:11px;background:var(--surface-2);border-radius:8px;overflow:hidden}
+  .bar span{display:block;height:100%;border-radius:8px;transition:width .5s ease}
+  .over{color:var(--coral)}
+  .budget-note{font-size:11.5px;font-weight:700;margin-top:4px}
+  .budget-note.over{color:var(--coral)} .budget-note.ok{color:var(--muted)}
+
+  .filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}
+  .filters input,.filters select{background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:9px 13px;border-radius:12px;font-size:13.5px;font-weight:700}
+  .filters input:focus,.filters select:focus{outline:none;border-color:var(--brand)}
+  .filters input[type="search"]{flex:1;min-width:150px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:2px solid var(--border);font-weight:800}
+  td{padding:12px 10px;border-bottom:1.5px solid var(--border);font-weight:600}
+  tbody tr{transition:background .15s}
+  tbody tr:hover{background:var(--surface-2)}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:12.5px;font-weight:700;background:var(--surface-2)}
+  .pill .pdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .pill .rec{font-size:11px;opacity:.75}
+  .amt{font-weight:700;text-align:right;white-space:nowrap;font-family:var(--display)}
+  .row-btn{background:transparent;color:var(--muted);border:2px solid var(--border);border-radius:9px;padding:5px 10px;font-size:12px;font-weight:700;transition:.15s}
+  .row-btn:hover{color:var(--brand);border-color:var(--brand)}
+  .row-btn.del:hover{color:var(--coral);border-color:var(--coral)}
+  .empty{text-align:center;color:var(--muted);padding:44px 14px;font-size:14px;font-weight:700}
+  .empty .em{font-size:38px;display:block;margin-bottom:10px}
+
+  @media(max-width:560px){
+    table,tbody,tr,td{display:block;width:100%}
+    thead{display:none}
+    tbody tr{background:var(--surface-2);border:2px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+    tbody tr:hover{background:var(--surface-2)}
+    td{border:none;padding:4px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+    td::before{content:attr(data-label);color:var(--muted);font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+    td.amt{justify-content:flex-end;font-size:18px}
+    td[data-label="Actions"]{justify-content:flex-end}
+    td[data-label="Category"]{flex-wrap:wrap}
+  }
+
+  .overlay{position:fixed;inset:0;background:rgba(30,24,55,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;backdrop-filter:blur(4px)}
+  .overlay.show{display:flex;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{background:var(--surface);border:2px solid var(--border);border-radius:var(--r-lg);padding:28px;width:100%;max-width:450px;box-shadow:var(--shadow);animation:pop .28s cubic-bezier(.5,1.5,.4,1);max-height:90vh;overflow:auto}
+  @keyframes pop{from{transform:scale(.94) translateY(10px);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal h3{font-family:var(--display);font-size:21px;font-weight:600;margin-bottom:3px}
+  .modal .desc{color:var(--muted);font-size:13.5px;margin-bottom:20px;font-weight:600}
+  .field{margin-bottom:15px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:700}
+  .field input,.field select{width:100%;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:12px 14px;border-radius:13px;font-size:15px;font-weight:600}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--brand)}
+  .type-toggle{display:flex;gap:9px}
+  .type-toggle button{flex:1;padding:12px;border-radius:13px;background:var(--surface-2);border:2px solid var(--border);color:var(--muted);font-weight:700;transition:.15s}
+  .type-toggle button.active{background:var(--brand-soft);color:var(--brand);border-color:var(--brand)}
+  [data-theme="dark"] .type-toggle button.active{color:var(--ink)}
+  .type-toggle button.active[data-t="expense"]{background:rgba(255,107,107,.14);color:var(--coral);border-color:var(--coral)}
+  .type-toggle button.active[data-t="income"]{background:rgba(47,184,155,.14);color:var(--mint);border-color:var(--mint)}
+  .bank-line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1.5px solid var(--border);font-size:13.5px;font-weight:700;gap:10px}
+  .bank-line:last-child{border-bottom:none}
+  .bank-line .cat-name{display:inline-flex;align-items:center;gap:8px;min-width:0}
+  .bank-line .rate{color:var(--muted);font-size:12px;font-weight:700}
+  .bank-line .bank-bal{font-family:var(--display);white-space:nowrap}
+  .bank-line .est{color:var(--mint);font-size:11px;font-weight:700;display:block;text-align:right}
+  .bills-summary{font-weight:700;margin-bottom:14px;font-size:13.5px}
+  .bills-summary b{font-family:var(--display);color:var(--brand)}
+  [data-theme="dark"] .bills-summary b{color:var(--ink)}
+  .bill-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1.5px solid var(--border)}
+  .bill-row:last-child{border-bottom:none}
+  .check{width:26px;height:26px;border-radius:9px;border:2px solid var(--border);flex:0 0 auto;display:grid;place-items:center;cursor:pointer;transition:.15s;background:var(--surface-2);font-size:14px;color:#fff;font-weight:800}
+  .check:hover{border-color:var(--mint)}
+  .check.on{background:var(--mint);border-color:var(--mint)}
+  .bill-main{flex:1;min-width:0}
+  .bill-name{font-weight:700;font-size:14px}
+  .bill-name.paid{text-decoration:line-through;color:var(--muted)}
+  .bill-sub{font-size:12px;color:var(--muted);font-weight:600}
+  .bill-status{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .bill-status.paid{background:rgba(47,184,155,.16);color:var(--mint)}
+  .bill-status.due{background:var(--brand-soft);color:var(--brand)}
+  [data-theme="dark"] .bill-status.due{color:var(--ink)}
+  .bill-status.over{background:rgba(255,107,107,.16);color:var(--coral)}
+  .bill-amt{font-family:var(--display);font-weight:700;white-space:nowrap}
+  .modal-actions{display:flex;gap:11px;margin-top:22px}
+  .modal-actions .btn{flex:1;justify-content:center}
+  .cur-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+  .cur-opt{padding:16px;border-radius:15px;background:var(--surface-2);border:2px solid var(--border);text-align:center;font-weight:700;transition:.15s}
+  .cur-opt:hover{border-color:var(--brand);transform:translateY(-2px)}
+  .cur-opt .sym{font-family:var(--display);font-size:26px;display:block;margin-bottom:3px;color:var(--brand)}
+  .cur-opt .nm{font-size:12px;color:var(--muted);font-weight:700}
+
+  .rec-item{display:flex;align-items:center;gap:12px;padding:12px;border:2px solid var(--border);border-radius:14px;margin-bottom:10px}
+  .rec-item .r-ico{font-size:20px}
+  .rec-item .r-main{flex:1;min-width:0}
+  .rec-item .r-title{font-weight:700;font-size:14px}
+  .rec-item .r-sub{font-size:12px;color:var(--muted);font-weight:600}
+
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:28px;padding-bottom:24px;font-weight:600}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--brand);color:#fff;padding:12px 16px 12px 20px;border-radius:15px;box-shadow:var(--shadow);font-size:14px;font-weight:700;opacity:0;transition:.35s cubic-bezier(.5,1.5,.4,1);z-index:60;display:flex;align-items:center;gap:14px}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .toast button{background:rgba(255,255,255,.22);color:#fff;border-radius:10px;padding:6px 12px;font-weight:800;font-size:13px}
+  .toast button:hover{background:rgba(255,255,255,.34)}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div id="auth-loading">🐷 Loading your budget…</div>
+
+<div class="authbar">
+  <div class="authbar-brand"><span>🐷</span> Budget Buddy</div>
+  <div class="authbar-right">
+    <span id="cloud-status" class="cloud-status"></span>
+    <span id="ab-email"></span>
+    <a href="#" id="admin-link" style="display:none">Admin</a>
+    <a href="#" id="change-pass-link">Change password</a>
+    <a href="#" id="logout-link">Log out</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 10 L8 5 L15 8"/>
+          <ellipse cx="17" cy="17" rx="10" ry="8"/>
+          <path d="M16 9 h6"/>
+          <ellipse cx="8" cy="18" rx="4" ry="3.4"/>
+          <circle cx="13" cy="14" r="0.9" fill="#fff" stroke="none"/>
+          <circle cx="7" cy="18.2" r="0.8" fill="#fff" stroke="none"/>
+          <circle cx="9.4" cy="18.2" r="0.8" fill="#fff" stroke="none"/>
+          <path d="M12 24.5 v3 M22 24.5 v3"/>
+          <path d="M27 15 q3 -1 1.4 -3.6"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Budget Buddy</h1>
+        <p id="periodLabel">All time</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button class="btn" id="settingsBtn">⚙️ Settings</button>
+      <button class="btn" id="savingsBtn">🏦 Savings</button>
+      <button class="btn" id="recurringBtn">🔁 Recurring</button>
+      <button class="btn" id="setBudgetsBtn">🎯 Budgets</button>
+      <button class="btn" id="exportBtn">⤓ Export</button>
+      <button class="btn" id="importBtn">⤒ Import</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+      <div class="theme-switch" id="themeBtn" role="button" tabindex="0" aria-label="Toggle light and dark mode">
+        <span class="bg-icon sun">☀️</span>
+        <span class="bg-icon moon">🌙</span>
+        <span class="knob" id="themeKnob">☀️</span>
+      </div>
+      <button class="btn primary" id="addBtn">＋ Add</button>
+    </div>
+  </header>
+
+  <div class="nudge" id="nudge" hidden role="status">
+    <span class="n-ico">💾</span>
+    <div class="n-body">
+      <div class="n-txt" id="nudgeTxt">Want an offline copy? Export a local backup any time.</div>
+      <div class="n-actions">
+        <button class="btn primary" id="nudgeExport">Export now</button>
+        <button class="n-x" id="nudgeDismiss">Later</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-text">
+      <div class="greeting" id="greeting">Hey there 👋</div>
+      <div class="mood-line" id="moodLine">Let's start tracking your money.</div>
+      <div class="bal-label" id="balLabel">Balance</div>
+      <div class="bal num" id="balance">—</div>
+      <div class="bank-indicator" id="bankIndicator" hidden></div>
+      <div class="safe-line" id="safeLine" hidden></div>
+    </div>
+    <div class="buddy" id="buddy" role="button" tabindex="0" aria-label="Feed the piggy bank — click for a coin animation">
+      <svg viewBox="0 0 120 120">
+        <g id="buddyBounce">
+          <g class="body">
+            <ellipse cx="60" cy="112" rx="34" ry="6" fill="rgba(0,0,0,.08)"/>
+            <rect x="20" y="24" width="80" height="80" rx="30" fill="var(--brand)"/>
+            <circle cx="34" cy="30" r="11" fill="var(--brand)"/>
+            <circle cx="86" cy="30" r="11" fill="var(--brand)"/>
+            <circle cx="38" cy="72" r="8" fill="var(--peach)" opacity=".55"/>
+            <circle cx="82" cy="72" r="8" fill="var(--peach)" opacity=".55"/>
+            <g class="eye" id="eyeL"><circle cx="47" cy="58" r="6" fill="#fff"/><circle id="pupL" cx="47" cy="59" r="3" fill="#2A2440"/></g>
+            <g class="eye" id="eyeR"><circle cx="73" cy="58" r="6" fill="#fff"/><circle id="pupR" cx="73" cy="59" r="3" fill="#2A2440"/></g>
+            <g id="happyEyes" opacity="0" fill="none" stroke="#2A2440" stroke-width="3" stroke-linecap="round">
+              <path d="M41 59 Q47 52 53 59"/>
+              <path d="M67 59 Q73 52 79 59"/>
+            </g>
+            <ellipse cx="60" cy="76" rx="15" ry="11" fill="var(--peach)"/>
+            <circle cx="55" cy="76" r="2.4" fill="#8a4a3a"/>
+            <circle cx="65" cy="76" r="2.4" fill="#8a4a3a"/>
+            <path id="buddyMouth" d="M50 90 Q60 98 70 90" stroke="#2A2440" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </g>
+          <g id="coin" opacity="0">
+            <circle cx="60" cy="80" r="9" fill="#F5B14C" stroke="#2A2440" stroke-width="2"/>
+            <text x="60" y="84.5" text-anchor="middle" font-size="11" font-weight="700" fill="#2A2440" font-family="'Bricolage Grotesque',sans-serif">$</text>
+          </g>
+          <text id="pop" x="60" y="52" text-anchor="middle" font-size="16" font-weight="800" fill="var(--mint)" opacity="0" font-family="'Bricolage Grotesque',sans-serif">+</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid stats">
+    <div class="card stat">
+      <div class="label"><span class="chip inc">↑</span> Income</div>
+      <div class="value up num" id="income">—</div>
+      <div class="sub"><span id="incomeCount">0 transactions</span><span id="incomeTrend"></span></div>
+    </div>
+    <div class="card stat">
+      <div class="label"><span class="chip exp">↓</span> Expenses</div>
+      <div class="value down num" id="expenses">—</div>
+      <div class="sub"><span id="expenseCount">0 transactions</span><span id="expenseTrend"></span></div>
+    </div>
+    <div class="card stat">
+      <div class="label"><span class="chip sav">🌱</span> Savings rate</div>
+      <div class="value num" id="savings">—</div>
+      <div class="sub"><span id="savingsSub">Kept out of income</span></div>
+    </div>
+  </div>
+
+  <div class="grid cols">
+    <div class="card">
+      <h2>Cash flow <span class="mini" id="flowLabel">by month</span></h2>
+      <canvas id="flowChart" role="img" aria-label="Cash flow chart"></canvas>
+    </div>
+    <div class="card">
+      <h2>Where it goes</h2>
+      <canvas id="catChart" role="img" aria-label="Spending by category chart"></canvas>
+    </div>
+  </div>
+
+  <div class="grid cols">
+    <div class="card">
+      <h2>Transactions <span class="mini" id="txCount"></span></h2>
+      <div class="filters">
+        <input type="search" id="search" placeholder="Search notes or categories…">
+        <select id="filterMonth"><option value="">All months</option></select>
+        <select id="filterType">
+          <option value="">All types</option>
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+        <select id="filterCat"><option value="">All categories</option></select>
+      </div>
+      <div id="txContainer"></div>
+    </div>
+    <div class="card">
+      <h2>Budgets <span class="mini" id="budgetMonthLabel"></span></h2>
+      <div id="budgetContainer"></div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-bottom:16px">
+    <div class="card">
+      <h2>Bill tracker <button class="row-btn" id="manageBillsBtn" style="font-family:var(--body)">Manage</button></h2>
+      <div id="billsContainer"></div>
+    </div>
+  </div>
+
+  <div class="grid cols">
+    <div class="card">
+      <h2>Savings growth <span class="mini" id="savingsTotalMini"></span></h2>
+      <canvas id="savingsChart" role="img" aria-label="Savings growth chart"></canvas>
+      <div id="bankList" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <h2>Who contributed <button class="row-btn" id="manageMembersBtn" style="font-family:var(--body)">Manage</button></h2>
+      <div id="contribContainer"></div>
+    </div>
+  </div>
+
+  <footer>Synced to your Budget Buddy account. Export is an optional local backup. Made for Kaizen.</footer>
+</div>
+
+<!-- Add / Edit transaction modal -->
+<div class="overlay" id="txModal">
+  <div class="modal">
+    <h3 id="txModalTitle">Add a transaction</h3>
+    <p class="desc">Log money coming in or going out.</p>
+    <div class="field">
+      <label>Type</label>
+      <div class="type-toggle" id="typeToggle">
+        <button type="button" data-t="expense" class="active">Expense</button>
+        <button type="button" data-t="income">Income</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Amount</label>
+      <input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="0.00">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <input type="text" id="txCategory" list="catList" placeholder="e.g. Groceries">
+      <datalist id="catList"></datalist>
+    </div>
+    <div class="field" id="contribField">
+      <label>Who added this?</label>
+      <select id="txMember"><option value="">Unassigned</option></select>
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="txDate">
+    </div>
+    <div class="field" id="repeatField">
+      <label>Repeats</label>
+      <select id="txRepeat">
+        <option value="none">Never</option>
+        <option value="weekly">Every week</option>
+        <option value="biweekly">Every 2 weeks</option>
+        <option value="monthly">Every month</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="txNote" placeholder="What was it for?">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="txCancel">Cancel</button>
+      <button class="btn primary" id="txSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Currency picker (first visit) -->
+<div class="overlay" id="curModal">
+  <div class="modal">
+    <h3>Welcome! 🎉</h3>
+    <p class="desc">Pick your currency to get started — you can change it anytime.</p>
+    <div class="cur-grid" id="curGrid"></div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div class="overlay" id="settingsModal">
+  <div class="modal">
+    <h3>Settings</h3>
+    <p class="desc">Update your currency and the money you already had when you started.</p>
+    <div class="field"><label>Currency</label><select id="setCurrency"></select></div>
+    <div class="field"><label>Starting cash on hand</label><input type="number" id="setCash" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+    <hr style="border:none;border-top:2px solid var(--border);margin:18px 0 14px">
+    <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:700">Starting savings per bank</label>
+    <div id="setSavings"></div>
+    <p class="desc" id="setNoBanks" style="display:none;margin:0">Add a bank under 🏦 Savings to set its starting balance.</p>
+    <div class="modal-actions">
+      <button class="btn" id="settingsClose">Cancel</button>
+      <button class="btn primary" id="settingsSave">Save settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- First-run onboarding modal -->
+<div class="overlay" id="onboardModal">
+  <div class="modal">
+    <h3>Let's set you up 💼</h3>
+    <p class="desc">Already have money before starting? Add it so your balance and savings are accurate from day one. You can skip and add these later.</p>
+    <div class="field"><label>Cash on hand right now</label><input type="number" id="obCash" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+    <hr style="border:none;border-top:2px solid var(--border);margin:18px 0 14px">
+    <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:9px;font-weight:700">Existing savings (optional)</label>
+    <div id="obBankList" style="margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="obBankName" placeholder="Bank name" style="flex:2;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
+      <input type="number" id="obBankBal" inputmode="decimal" min="0" step="0.01" placeholder="Balance" style="flex:1.2;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
+      <input type="number" id="obBankRate" inputmode="decimal" min="0" step="0.01" placeholder="APY%" style="flex:1;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
+    </div>
+    <div class="modal-actions" style="margin-top:10px"><button class="btn" id="obAddBank" style="flex:1">＋ Add bank</button></div>
+    <div class="modal-actions">
+      <button class="btn" id="obSkip">Skip for now</button>
+      <button class="btn primary" id="obFinish">Finish setup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Budgets modal -->
+<div class="overlay" id="budgetModal">
+  <div class="modal">
+    <h3>Monthly budgets</h3>
+    <p class="desc">Set a friendly spending limit per category. Leave blank to skip.</p>
+    <div id="budgetInputs" style="max-height:340px;overflow:auto"></div>
+    <div class="field" style="margin-top:14px">
+      <label>Add a category</label>
+      <input type="text" id="newBudgetCat" placeholder="Category name">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="budgetCancel">Cancel</button>
+      <button class="btn primary" id="budgetSave">Save budgets</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recurring modal -->
+<div class="overlay" id="recModal">
+  <div class="modal">
+    <h3>Recurring transactions</h3>
+    <p class="desc">These are added automatically on schedule. Create one by setting “Repeats” when adding a transaction. Editing changes future occurrences only.</p>
+    <div id="recList"></div>
+    <div id="recEdit" style="display:none">
+      <hr style="border:none;border-top:2px solid var(--border);margin:18px 0 14px">
+      <h3 style="font-size:16px;margin-bottom:12px">Edit recurring item</h3>
+      <div class="field"><label>Amount</label><input type="number" id="recAmount" inputmode="decimal" min="0" step="0.01"></div>
+      <div class="field"><label>Note / name</label><input type="text" id="recNote" placeholder="Description"></div>
+      <div class="field" id="recDayField"><label>Day of month</label><input type="number" id="recDay" inputmode="numeric" min="1" max="31"></div>
+      <div class="modal-actions"><button class="btn" id="recEditCancel">Cancel</button><button class="btn primary" id="recEditSave">Save changes</button></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn primary" id="recClose">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Savings modal -->
+<div class="overlay" id="savingsModal">
+  <div class="modal">
+    <h3>Savings</h3>
+    <p class="desc">Move money into your banks. Deposits come out of your spendable balance, withdrawals return to it, and interest is earned on top.</p>
+    <div class="field">
+      <label>Bank</label>
+      <select id="svBank"></select>
+    </div>
+    <div class="field">
+      <label>Type</label>
+      <div class="type-toggle" id="svKindToggle">
+        <button type="button" data-k="deposit" class="active">Deposit</button>
+        <button type="button" data-k="withdrawal">Withdraw</button>
+        <button type="button" data-k="interest">Interest</button>
+      </div>
+    </div>
+    <div class="field"><label>Amount</label><input type="number" id="svAmount" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+    <div class="field"><label>Date</label><input type="date" id="svDate"></div>
+    <div class="field"><label>Note (optional)</label><input type="text" id="svNote" placeholder="e.g. payday transfer"></div>
+    <div class="modal-actions"><button class="btn primary" id="svAdd" style="flex:1">Add entry</button></div>
+
+    <hr style="border:none;border-top:2px solid var(--border);margin:22px 0 16px">
+    <h3 style="font-size:16px;margin-bottom:12px">Your banks</h3>
+    <div id="svBankManage"></div>
+    <div class="field" style="margin-top:12px">
+      <label>Add a bank</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="newBankName" placeholder="Bank name" style="flex:2">
+        <input type="number" id="newBankRate" inputmode="decimal" min="0" step="0.01" placeholder="APY %" style="flex:1">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="newBankAdd" style="flex:1">Add bank</button>
+      <button class="btn primary" id="savingsClose" style="flex:1">Done</button>
+    </div>
+    <div id="svRecent" style="margin-top:18px"></div>
+  </div>
+</div>
+
+<!-- Bills modal -->
+<div class="overlay" id="billsModal">
+  <div class="modal">
+    <h3>Recurring bills</h3>
+    <p class="desc">Add bills you pay regularly, then tick them off on the tracker each period. Items from 🔁 Recurring show on the tracker too.</p>
+    <div id="billList"></div>
+    <hr style="border:none;border-top:2px solid var(--border);margin:20px 0 16px">
+    <h3 id="billFormTitle" style="font-size:16px;margin-bottom:12px">Add a bill</h3>
+    <div class="field"><label>Bill name</label><input type="text" id="newBillName" placeholder="e.g. Electricity"></div>
+    <div style="display:flex;gap:8px">
+      <div class="field" style="flex:2"><label>Amount</label><input type="number" id="newBillAmount" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field" style="flex:1.2"><label>Repeats</label><select id="newBillFreq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="biweekly">Every 2 weeks</option></select></div>
+    </div>
+    <div class="field" id="billDayField"><label>Due day of month</label><input type="number" id="newBillDay" inputmode="numeric" min="1" max="31" placeholder="15"></div>
+    <div class="field" id="billWeekdayField" style="display:none"><label>Day of week</label><select id="newBillWeekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select></div>
+    <div class="field" id="billBiweeklyField" style="display:none"><label>Starting from</label><input type="date" id="newBillStart"></div>
+    <div class="modal-actions">
+      <button class="btn" id="billsClose">Close</button>
+      <button class="btn primary" id="newBillAdd">Add bill</button>
+    </div>
+  </div>
+</div>
+
+<!-- Members modal -->
+<div class="overlay" id="memberModal">
+  <div class="modal">
+    <h3>Household members</h3>
+    <p class="desc">Add the people who contribute income, then tag income to each person.</p>
+    <div id="memberList"></div>
+    <div class="field" style="margin-top:12px"><label>Add a member</label><input type="text" id="newMemberName" placeholder="Name"></div>
+    <div class="modal-actions">
+      <button class="btn" id="memberClose">Close</button>
+      <button class="btn primary" id="newMemberAdd">Add member</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- The tracker app (defines window.startBudgetApp). Loaded but not started until auth+cloud below. -->
+<script src="js/app.js"></script>
+
+<!-- Auth gate + cloud sync -->
+<script type="module">
+  import { requireAuth, logout, cloudLoad, cloudSave, openChangePasswordDialog } from "./js/auth.js";
+  const LS_KEY = "kaizen_budget_tracker_v1";
+
+  document.getElementById("logout-link").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+  document.getElementById("change-pass-link").addEventListener("click", (e) => { e.preventDefault(); openChangePasswordDialog(); });
+
+  requireAuth(async (user, access) => {
+    document.getElementById("ab-email").textContent = access.email || user.email;
+    if (access.role === "admin") {
+      const a = document.getElementById("admin-link");
+      a.style.display = "inline";
+      a.href = "admin.html";
+    }
+
+    // Seed the local cache from the cloud (or clear it for a fresh account)
+    // BEFORE the app boots, so it loads THIS user's data — never a leftover.
+    const cloud = await cloudLoad(user.uid);
+    if (cloud && typeof cloud.data === "string") localStorage.setItem(LS_KEY, cloud.data);
+    else localStorage.removeItem(LS_KEY);
+
+    // Debounced cloud save the app calls from its own save().
+    let t = null;
+    const status = document.getElementById("cloud-status");
+    window.__cloudSaveBudget = (json) => {
+      if (status) status.textContent = "Saving…";
+      clearTimeout(t);
+      t = setTimeout(async () => {
+        try {
+          await cloudSave(user.uid, json);
+          if (status) { status.textContent = "Saved ✓"; setTimeout(() => { if (status.textContent === "Saved ✓") status.textContent = ""; }, 1500); }
+        } catch (e) { if (status) status.textContent = "Save failed"; console.error(e); }
+      }, 700);
+    };
+
+    const overlay = document.getElementById("auth-loading");
+    if (overlay) overlay.remove();
+    window.startBudgetApp();
+  });
+</script>
+</body>
+</html>

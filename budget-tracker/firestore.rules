@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// ============================================================
+// PASTE THIS INTO: Firebase Console > Firestore Database > Rules
+// (for the NEW Budget Buddy project — not the wedding one)
+// ============================================================
+//
+// Model:
+//  - allowedUsers/{uid} is the access-control gate AND the account-type
+//    record. A signed-in Firebase Auth account grants NOTHING by itself —
+//    the app only lets someone in if their UID has a doc here, and the
+//    doc's `role` field ("user" | "admin") decides which page they land on.
+//    Only existing admins can create/update/delete these docs, which is how
+//    "add a login" / "revoke access" is enforced server-side.
+//
+//  - budgets/{uid} holds each account's full budget (JSON string), synced to
+//    the cloud so it follows the user across devices. Each user can read and
+//    write ONLY their own budget document.
+//
+//  - settings/pricing holds the per-member price used for the admin revenue
+//    estimate. Admin-only.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAllowed() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/allowedUsers/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+        isAllowed() &&
+        get(/databases/$(database)/documents/allowedUsers/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /allowedUsers/{userId} {
+      // Anyone signed in can read their OWN doc (to check their access + role).
+      allow get: if request.auth != null && request.auth.uid == userId;
+      // Only admins can list everyone (for the admin panel table).
+      allow list: if isAdmin();
+      // Only admins can grant or revoke access.
+      allow create, update, delete: if isAdmin();
+    }
+
+    // settings/pricing — admin-only in both directions.
+    match /settings/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    // budgets/{uid} — each account's cloud-synced budget. Only the owner
+    // (and only while still an allowed, non-revoked user) can read or write it.
+    match /budgets/{userId} {
+      allow read, write: if request.auth != null &&
+        request.auth.uid == userId &&
+        isAllowed();
+    }
+  }
+}

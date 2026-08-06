@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel — Budget Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand"><span class="mark">🐷</span> Budget Buddy <small>Admin panel</small></div>
+    <nav>
+      <span id="user-email" style="color:var(--muted);font-size:0.85rem"></span>
+      <a href="#" id="change-pass-link">Change password</a>
+      <a href="#" id="logout-link">Log out</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    <div class="summary-grid">
+      <div class="stat"><div class="label">Active users</div><div class="value" id="stat-total">—</div></div>
+      <div class="stat"><div class="label">Members</div><div class="value" id="stat-users">—</div></div>
+      <div class="stat"><div class="label">Admins</div><div class="value" id="stat-admins">—</div></div>
+      <div class="stat"><div class="label">New this week</div><div class="value" id="stat-new">—</div></div>
+      <div class="stat"><div class="label">Monthly revenue</div><div class="value" id="stat-revenue">—</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Add a user</h2>
+      <p class="hint">Creates their login and grants dashboard access. Leave the trial date empty for permanent access.</p>
+      <div class="field-row">
+        <label class="field"><span>Email</span><input type="email" id="new-email" placeholder="person@example.com" /></label>
+        <label class="field"><span>Temporary password</span><input type="text" id="new-password" placeholder="at least 6 characters" /></label>
+        <label class="field" style="max-width:150px"><span>Role</span>
+          <select id="new-role"><option value="user">User</option><option value="admin">Admin</option></select>
+        </label>
+        <label class="field" style="max-width:170px"><span>Trial ends (optional)</span><input type="date" id="new-trial" /></label>
+        <button class="btn" id="create-user">Add user</button>
+      </div>
+      <div class="error" id="create-error"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pricing <span class="saved-tag" id="pricing-saved">Saved ✓</span></h2>
+      <p class="hint">Monthly price per active member — used to estimate revenue above.</p>
+      <div class="field-row">
+        <label class="field" style="max-width:200px"><span>Price per member (₱/mo)</span><input type="text" id="price-user" placeholder="₱0" /></label>
+        <button class="btn" id="save-pricing">Save pricing</button>
+      </div>
+      <div class="error" id="pricing-error"></div>
+    </div>
+
+    <div class="card">
+      <h2>Accounts</h2>
+      <div class="row" style="margin-bottom:14px">
+        <label style="color:var(--muted);font-size:0.85rem;font-weight:600">Filter:
+          <select id="role-filter" style="width:auto;display:inline-block;margin-left:8px;margin-bottom:0">
+            <option value="">All roles</option>
+            <option value="user">Users</option>
+            <option value="admin">Admins</option>
+          </select>
+        </label>
+      </div>
+      <table>
+        <thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Trial</th><th>Added</th><th></th></tr></thead>
+        <tbody id="users-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

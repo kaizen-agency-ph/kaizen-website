@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign In — Budget Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-glow" aria-hidden="true">🐷</div>
+    <div class="login-card">
+      <div class="login-logo">🐷</div>
+      <h1>Budget Buddy</h1>
+      <p class="sub">Sign in to your budget</p>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Email" required autocomplete="username" />
+        <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
+        <div class="error" id="error"></div>
+        <button class="btn" type="submit" style="width:100%">Sign in</button>
+      </form>
+      <p class="hint" style="margin-top:16px">Don't have an account? Ask your admin to add you — accounts aren't self-serve.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { login, checkAccess, auth, homeForRole } from "./js/auth.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const form = document.getElementById("login-form");
+    const errorEl = document.getElementById("error");
+
+    async function goToDashboard(user, access) {
+      const dest = homeForRole(access.role);
+      if (dest === "index.html") {
+        errorEl.textContent = 'This account has an unrecognized role ("' + access.role + '"). Ask your admin to check it in Firestore — it must be exactly "admin" or "user".';
+        await auth.signOut();
+        return;
+      }
+      window.location.href = dest;
+    }
+
+    // If already logged in and allowed, skip straight to the dashboard.
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const access = await checkAccess(user);
+        if (access) await goToDashboard(user, access);
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.textContent = "";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        const cred = await login(email, password);
+        const access = await checkAccess(cred.user);
+        if (!access) {
+          errorEl.textContent = "This account exists but hasn't been granted access (or its trial ended). Contact your admin.";
+          await auth.signOut();
+          return;
+        }
+        await goToDashboard(cred.user, access);
+      } catch (err) {
+        errorEl.textContent = "Sign-in failed. Check your email and password.";
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
