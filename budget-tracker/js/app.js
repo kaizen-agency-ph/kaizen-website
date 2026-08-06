@@ -116,6 +116,7 @@ window.startBudgetApp = function(){
     const today=new Date(); today.setHours(0,0,0,0);
     let added=false;
     state.recurring.forEach(rule=>{
+      if(rule.type!=="income") return; // expenses post only when ticked paid in the Bills tab
       let guard=0;
       while(guard++<600){
         const nd=nextDate(rule); nd.setHours(0,0,0,0);
@@ -530,10 +531,36 @@ window.startBudgetApp = function(){
     box.querySelectorAll("[data-editbill]").forEach(btn=>btn.onclick=()=>openBillsModal(btn.dataset.editbill));
     box.querySelectorAll("[data-editrecurring]").forEach(btn=>btn.onclick=()=>openRecModal(btn.dataset.editrecurring));
   }
+  function occurrenceDate(rule, pk){
+    const freq=rule.freq||"monthly";
+    if(freq==="monthly" && /^\d{4}-\d{2}$/.test(pk)){
+      const [y,m]=pk.split("-").map(Number);
+      const dim=new Date(y,m,0).getDate();
+      return pk+"-"+String(Math.min(rule.anchorDay||1,dim)).padStart(2,"0");
+    }
+    return new Date().toISOString().slice(0,10);
+  }
   function toggleBill(id, pk){
     const k=billKey(id,pk);
-    if(state.billsPaid[k]) delete state.billsPaid[k]; else state.billsPaid[k]=true;
-    save(); renderBills(); renderBillIndicator();
+    const nowPaid = !state.billsPaid[k];
+    if(nowPaid) state.billsPaid[k]=true; else delete state.billsPaid[k];
+    // Recurring EXPENSE items only hit the balance once ticked paid: create the
+    // transaction on tick, remove it on un-tick. Standalone bills stay checklist-only.
+    if(id.indexOf("rec:")===0){
+      const ruleId=id.slice(4);
+      const rule=state.recurring.find(r=>r.id===ruleId);
+      if(rule && rule.type==="expense"){
+        if(nowPaid){
+          const exists=state.transactions.some(t=>t.recurringId===ruleId && t.recurPeriod===pk);
+          if(!exists){
+            state.transactions.push({id:uid(),type:"expense",amount:rule.amount,category:rule.category,note:rule.note||"",date:occurrenceDate(rule,pk),created:Date.now(),recurringId:ruleId,recurPeriod:pk});
+          }
+        } else {
+          state.transactions=state.transactions.filter(t=>!(t.recurringId===ruleId && t.recurPeriod===pk));
+        }
+      }
+    }
+    save(); renderAll();
   }
   function billFreqUI(){
     const f = el("newBillFreq").value;
@@ -790,15 +817,23 @@ window.startBudgetApp = function(){
       toast("Updated ✓");
     } else {
       unhide(category);
-      state.transactions.push({id:uid(),type:pendingType,amount,category,date,note,memberId,created:Date.now()});
       const rep=el("txRepeat").value;
+      const tx={id:uid(),type:pendingType,amount,category,date,note,memberId,created:Date.now()};
       if(rep!=="none"){
         const anchorDay=parseInt(date.slice(8,10),10);
-        state.recurring.push({id:uid(),type:pendingType,amount,category,note,freq:rep,anchorDay,anchor:date,lastDate:date});
+        const ruleId=uid();
+        state.recurring.push({id:ruleId,type:pendingType,amount,category,note,freq:rep,anchorDay,anchor:date,lastDate:date});
+        if(pendingType==="expense"){
+          // the one just logged is this period's occurrence → link it and mark paid
+          const pk = rep==="monthly" ? date.slice(0,7) : itemPeriodKey({freq:rep,anchor:date}, new Date(date+"T00:00:00"));
+          tx.recurringId=ruleId; tx.recurPeriod=pk;
+          state.billsPaid["rec:"+ruleId+"|"+pk]=true;
+        }
         toast(rep==="weekly"?"Added ✓ Repeats weekly":rep==="biweekly"?"Added ✓ Repeats every 2 weeks":"Added ✓ Repeats monthly");
       } else {
         toast("Added ✓");
       }
+      state.transactions.push(tx);
     }
     save(); renderAll(); el("txModal").classList.remove("show");
   }
@@ -1162,6 +1197,22 @@ window.startBudgetApp = function(){
 
   // ---- Init ----
   runRecurring();
+  // One-time: treat previously auto-posted recurring expenses as already paid,
+  // so the new "post only when ticked" model stays consistent with old data.
+  if(!state.recurBillMigrated){
+    state.transactions.forEach(t=>{
+      if(t.recurringId && !t.recurPeriod){
+        const rule=state.recurring.find(r=>r.id===t.recurringId);
+        if(rule && rule.type==="expense"){
+          const pk = (rule.freq||"monthly")==="monthly" ? t.date.slice(0,7) : itemPeriodKey({freq:rule.freq,anchor:rule.anchor||rule.lastDate}, new Date(t.date+"T00:00:00"));
+          t.recurPeriod=pk;
+          state.billsPaid["rec:"+rule.id+"|"+pk]=true;
+        }
+      }
+    });
+    state.recurBillMigrated=true;
+    saveMeta();
+  }
   applyTheme();
   refreshFilterOptions();
   restoreFilters();
