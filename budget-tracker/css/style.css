@@ -147,6 +147,13 @@ nav a:hover { color: var(--brand); }
   margin: 0 auto 16px;
   box-shadow: 0 8px 20px rgba(108,99,255,.22);
 }
+.login-wordmark {
+  display: block;
+  width: 84%;
+  max-width: 280px;
+  height: auto;
+  margin: 4px auto 18px;
+}
 
 .login-card h1 {
   font-size: 1.5rem;
