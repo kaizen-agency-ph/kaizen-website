@@ -1086,9 +1086,6 @@ window.startBudgetApp = function(){
   el("obBankName").addEventListener("keydown",e=>{if(e.key==="Enter")obAddBank();});
   el("obBankBal").addEventListener("keydown",e=>{if(e.key==="Enter")obAddBank();});
   el("obBankRate").addEventListener("keydown",e=>{if(e.key==="Enter")obAddBank();});
-  el("exportBtn").onclick=exportData;
-  el("importBtn").onclick=()=>el("importFile").click();
-  el("importFile").onchange=e=>{ if(e.target.files[0]) importData(e.target.files[0]); e.target.value=""; };
   el("themeBtn").onclick=toggleTheme;
   el("themeBtn").addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleTheme();} });
   el("nudgeExport").onclick=exportData;
