@@ -533,7 +533,7 @@ window.startBudgetApp = function(){
   function toggleBill(id, pk){
     const k=billKey(id,pk);
     if(state.billsPaid[k]) delete state.billsPaid[k]; else state.billsPaid[k]=true;
-    save(); renderBills();
+    save(); renderBills(); renderBillIndicator();
   }
   function billFreqUI(){
     const f = el("newBillFreq").value;
