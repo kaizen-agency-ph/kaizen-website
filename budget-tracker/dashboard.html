@@ -42,6 +42,14 @@
   .theme-switch:focus-visible{outline-offset:3px}
   [hidden]{display:none!important}
 
+  /* Tabs */
+  .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  .tab{background:var(--surface);border:2px solid var(--border);color:var(--muted);padding:9px 18px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:var(--shadow-sm);display:inline-flex;align-items:center;gap:8px;transition:.15s}
+  .tab:hover{border-color:var(--brand);color:var(--brand)}
+  .tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .tab-badge{background:var(--coral);color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px;min-width:18px;text-align:center;line-height:1.5}
+  .tab.active .tab-badge{background:rgba(255,255,255,.3)}
+
   h1,h2,h3,.num{font-family:var(--display)}
   .num{font-variant-numeric:tabular-nums;letter-spacing:-.4px}
 
@@ -293,6 +301,12 @@
     </div>
   </div>
 
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+    <button class="tab" data-tab="bills">🧾 Bills <span class="tab-badge" id="billsTabBadge" hidden></span></button>
+  </div>
+
+  <div id="tab-dashboard" class="tab-panel">
   <div class="hero">
     <div class="hero-text">
       <div class="greeting" id="greeting">Hey there 👋</div>
@@ -351,6 +365,10 @@
     </div>
   </div>
 
+  <div class="grid" style="margin-bottom:16px">
+    <div class="card" id="billIndicatorCard"></div>
+  </div>
+
   <div class="grid cols">
     <div class="card">
       <h2>Cash flow <span class="mini" id="flowLabel">by month</span></h2>
@@ -383,13 +401,6 @@
     </div>
   </div>
 
-  <div class="grid" style="margin-bottom:16px">
-    <div class="card">
-      <h2>Bill tracker <button class="row-btn" id="manageBillsBtn" style="font-family:var(--body)">Manage</button></h2>
-      <div id="billsContainer"></div>
-    </div>
-  </div>
-
   <div class="grid cols">
     <div class="card">
       <h2>Savings growth <span class="mini" id="savingsTotalMini"></span></h2>
@@ -399,6 +410,16 @@
     <div class="card">
       <h2>Who contributed <button class="row-btn" id="manageMembersBtn" style="font-family:var(--body)">Manage</button></h2>
       <div id="contribContainer"></div>
+    </div>
+  </div>
+  </div><!-- /tab-dashboard -->
+
+  <div id="tab-bills" class="tab-panel" hidden>
+    <div class="grid" style="margin-bottom:16px">
+      <div class="card">
+        <h2>Bill tracker <button class="row-btn" id="manageBillsBtn" style="font-family:var(--body)">Manage</button></h2>
+        <div id="billsContainer"></div>
+      </div>
     </div>
   </div>
 

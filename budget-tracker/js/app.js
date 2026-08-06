@@ -382,7 +382,62 @@ window.startBudgetApp = function(){
     }
   }
 
-  function renderAll(){ refreshFilterOptions(); renderStats(); renderSafeToSpend(); renderTx(); renderBudgets(); renderCharts(); renderContrib(); renderSavings(); renderBills(); renderNudge(); }
+  function renderAll(){ refreshFilterOptions(); renderStats(); renderSafeToSpend(); renderTx(); renderBudgets(); renderCharts(); renderContrib(); renderSavings(); renderBills(); renderBillIndicator(); renderNudge(); }
+
+  // ---- Tabs ----
+  function switchTab(name){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+    document.querySelectorAll(".tab-panel").forEach(p=>{ p.hidden = (p.id!=="tab-"+name); });
+    if(name==="dashboard"){ renderCharts(); renderSavingsChart(); }
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  // ---- Compact bill indicator on the dashboard ----
+  function renderBillIndicator(){
+    const card=el("billIndicatorCard"); if(!card) return;
+    const badge=el("billsTabBadge");
+    const items=trackerItems(), now=new Date();
+    const gobtn='<button class="btn primary" data-gobills>View bills →</button>';
+    if(!items.length){
+      card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div style="font-family:var(--display);font-weight:600;font-size:16px">🧾 Bills</div><div style="color:var(--muted);font-weight:600;margin-top:4px">No bills tracked yet.</div></div><button class="btn" data-gobills>Set up bills →</button></div>`;
+      if(badge) badge.hidden=true;
+      card.querySelectorAll("[data-gobills]").forEach(b=>b.onclick=()=>switchTab("bills"));
+      return;
+    }
+    let remaining=0, overdue=0, dueSoon=0; const unpaid=[];
+    items.forEach(it=>{
+      if(billPaid(it.id,itemPeriodKey(it,now))) return;
+      unpaid.push(it); remaining+=it.amount;
+      const info=dueInfo(it,now);
+      if(info.label==="Overdue") overdue++;
+      else if(info.label==="Due today"||info.label==="Due now") dueSoon++;
+      else if(it.freq==="monthly"){ const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(); const due=Math.min(it.dueDay||1,dim); if(due-now.getDate()<=3) dueSoon++; }
+    });
+    if(badge){
+      if(unpaid.length){ badge.hidden=false; badge.textContent=unpaid.length; badge.style.background=overdue?"var(--coral)":"var(--brand)"; }
+      else badge.hidden=true;
+    }
+    if(!unpaid.length){
+      card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><div style="font-family:var(--display);font-weight:600;font-size:16px">🧾 Bills this period</div><div style="color:var(--mint);font-weight:700;margin-top:4px">🎉 All paid — nice work!</div></div><button class="btn" data-gobills>View bills →</button></div>`;
+      card.querySelectorAll("[data-gobills]").forEach(b=>b.onclick=()=>switchTab("bills"));
+      return;
+    }
+    const urgent=[...unpaid].sort((a,b)=>dueSortVal(a,now)-dueSortVal(b,now))[0];
+    const ui=dueInfo(urgent,now);
+    const parts=[];
+    if(overdue) parts.push(`<span style="color:var(--coral);font-weight:800">${overdue} overdue</span>`);
+    if(dueSoon) parts.push(`<span style="color:var(--brand);font-weight:800">${dueSoon} due soon</span>`);
+    parts.push(`${unpaid.length} unpaid · ${fmt(remaining)} to pay`);
+    card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+      <div style="min-width:0">
+        <div style="font-family:var(--display);font-weight:600;font-size:16px">🧾 Bills this period</div>
+        <div style="color:var(--muted);font-weight:600;margin-top:5px">${parts.join(' <span style="opacity:.4">·</span> ')}</div>
+        <div style="margin-top:7px;font-weight:700">Next up: ${esc(urgent.name)} <span class="bill-status ${ui.cls}" style="margin-left:4px">${ui.label}</span></div>
+      </div>
+      ${gobtn}
+    </div>`;
+    card.querySelectorAll("[data-gobills]").forEach(b=>b.onclick=()=>switchTab("bills"));
+  }
 
   // ---- Recurring bills checklist ----
   const ord=n=>{ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
@@ -990,6 +1045,7 @@ window.startBudgetApp = function(){
   function toggleTheme(){ state.theme=state.theme==="dark"?"light":"dark"; saveMeta(); applyTheme(); renderCharts(); renderSavingsChart(); }
 
   // ---- Events ----
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
   el("addBtn").onclick=()=>openTxModal();
   el("txCancel").onclick=()=>el("txModal").classList.remove("show");
   el("txSave").onclick=saveTx;
