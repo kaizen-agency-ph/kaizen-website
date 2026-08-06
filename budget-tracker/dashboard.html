@@ -498,10 +498,10 @@
     <hr style="border:none;border-top:2px solid var(--border);margin:18px 0 14px">
     <label style="display:block;font-size:13px;color:var(--muted);margin-bottom:9px;font-weight:700">Existing savings (optional)</label>
     <div id="obBankList" style="margin-bottom:10px"></div>
-    <div style="display:flex;gap:8px">
-      <input type="text" id="obBankName" placeholder="Bank name" style="flex:2;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
-      <input type="number" id="obBankBal" inputmode="decimal" min="0" step="0.01" placeholder="Balance" style="flex:1.2;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
-      <input type="number" id="obBankRate" inputmode="decimal" min="0" step="0.01" placeholder="APY%" style="flex:1;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input type="text" id="obBankName" placeholder="Bank name" style="flex:1 1 100%;min-width:0;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
+      <input type="number" id="obBankBal" inputmode="decimal" min="0" step="0.01" placeholder="Balance" style="flex:1 1 130px;min-width:0;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
+      <input type="number" id="obBankRate" inputmode="decimal" min="0" step="0.01" placeholder="APY %" style="flex:1 1 100px;min-width:0;background:var(--surface-2);border:2px solid var(--border);color:var(--ink);padding:11px 13px;border-radius:12px;font-weight:600;font-family:inherit">
     </div>
     <div class="modal-actions" style="margin-top:10px"><button class="btn" id="obAddBank" style="flex:1">＋ Add bank</button></div>
     <div class="modal-actions">
