@@ -570,7 +570,7 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   requireAuth((user, access) => {
     document.getElementById("wd-user-email").textContent = (access.email || user.email) + " \u00b7 Couple";
     var _app = document.getElementById("app"); if(_app) _app.style.visibility = "visible";
-    showSupportWidget();
+    /* support widget comes from the planner itself */
     if(access.trialEndsAt){
       var msLeft = Number(access.trialEndsAt) - Date.now();
       if(msLeft > 0 && msLeft <= 86400000) showTrialPopup();
@@ -600,8 +600,6 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
 (function(){
   "use strict";
 
-  // Origin lock (deterrent): stop the planner running from a saved copy on disk
-  // or a re-hosted domain. Client code is always copyable; this blocks easy paths.
   var ALLOWED_HOSTS = ["kaizenagency.online", "www.kaizenagency.online", "kaizen-agency-ph.github.io", "localhost", "127.0.0.1"];
   if(ALLOWED_HOSTS.indexOf(location.hostname) === -1){
     document.documentElement.innerHTML = "<div style='font-family:sans-serif;padding:48px;text-align:center;color:#8C4F66'>This app can only run from its official website.</div>";
@@ -3166,6 +3164,9 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
     var tg = el("a", { class:"wp-fbrow", href:"https://t.me/+639751001378", target:"_blank", rel:"noopener" });
     tg.innerHTML = '<span class="wp-fbic">\u2708\ufe0f</span><span><b>Telegram \u00b7 Kaizer</b><br>+63 975 1001 378</span>';
     panel.appendChild(tg);
+    var fb = el("a", { class:"wp-fbrow", href:"https://www.facebook.com/people/Kaizen-Agency/61558492156597/", target:"_blank", rel:"noopener" });
+    fb.innerHTML = '<span class="wp-fbic">\ud83d\udc4d</span><span><b>Facebook</b><br>Message Kaizen Agency</span>';
+    panel.appendChild(fb);
     if(ONBOARD){
       var tourRow = el("a", { class:"wp-fbrow", href:"#", onClick:function(e){ e.preventDefault(); panel.style.display = "none"; startTour(); } });
       tourRow.innerHTML = '<span class="wp-fbic">\ud83e\udded</span><span><b>Show me around</b><br>Replay the guided tour</span>';
