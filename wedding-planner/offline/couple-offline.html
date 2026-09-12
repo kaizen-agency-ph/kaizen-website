@@ -517,12 +517,6 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
         {id:uid(),label:"Cake & desserts",est:"",act:""}
       ]},
       tasks: [
-        {id:uid(),title:"Set the date & book the venue",cat:"Venue",due:"",status:"todo",notes:"",images:[]},
-        {id:uid(),title:"Draft the guest list",cat:"Guests",due:"",status:"todo",notes:"",images:[]},
-        {id:uid(),title:"Choose & book a photographer",cat:"Photography",due:"",status:"todo",notes:"",images:[]},
-        {id:uid(),title:"Send save-the-dates",cat:"Invitations",due:"",status:"todo",notes:"",images:[]},
-        {id:uid(),title:"Order the cake",cat:"Catering",due:"",status:"todo",notes:"",images:[]},
-        {id:uid(),title:"Book caterer & menu tasting",cat:"Catering",due:"",status:"doing",notes:"",images:[]},
         {id:uid(),title:"Got engaged",cat:"",due:"",status:"done",notes:"",images:[]}
       ],
       vendors: { categories:[
@@ -572,6 +566,9 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   var COORD = false;
   /* ONBOARDING: first-run setup wizard + guided tour (enabled only in the offline couples build). */
   var ONBOARD = true;
+  /* true in the signed-in builds: first-run onboarding is triggered by the
+     account's cloud flag instead of this device's localStorage. */
+  var AUTH_MODE = false;
   /* Downloadable offline build served alongside this page (set per edition at build time). */
   var OFFLINE_FILE = "offline/wedding-planner-offline.html";
   /* Storage is per-device and never synced. If the sign-in page exposes an account
@@ -3076,7 +3073,8 @@ html,body{ margin:0; padding:0; background:#FBF5F4; }
   render();
   buildFeedbackWidget();
   if(!storageOK) showStorageBanner();
-  if(ONBOARD && !onboardDone()) setTimeout(startWizard, 250);
+  window.__wdStartOnboarding = function(){ try { startWizard(); } catch(e){} };
+  if(ONBOARD && !AUTH_MODE && !onboardDone()) setTimeout(startWizard, 250);
 
   function showStorageBanner(){
     if(document.getElementById("wp-nostore")) return;
