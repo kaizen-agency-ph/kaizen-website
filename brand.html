@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kaizen Brand Sheet</title>
+<link rel="icon" href="assets/logo/mark-ink.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0b0b0b;color:#fff;font-family:Archivo,sans-serif;padding:clamp(24px,5vw,72px) clamp(16px,4vw,56px)}
+h1{font-weight:900;font-variation-settings:"wdth" 125;font-size:clamp(40px,7vw,96px);line-height:.9;letter-spacing:-.03em;text-transform:uppercase;margin:0 0 12px}
+h2{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#a3a3a3;margin:64px 0 18px;font-weight:400}
+p{color:#a3a3a3;max-width:620px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:16px}
+.tile{border:1px solid #1f1f1f}
+.tile .art{aspect-ratio:16/8;display:grid;place-items:center;padding:12%}
+.tile .art img{width:100%}
+.tile.sq .art{aspect-ratio:1}.tile.sq .art img{width:40%}
+.cap{display:flex;justify-content:space-between;gap:12px;padding:14px 16px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:#a3a3a3;border-top:1px solid #1f1f1f}
+.cap a{color:#e8590c}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+.sw div{border:1px solid #1f1f1f}.sw i{display:block;height:110px}.sw span{display:block;padding:12px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:#a3a3a3}
+.sw b{display:block;color:#fff;font-family:Archivo;font-size:15px;margin-bottom:4px}
+</style></head><body>
+<h1>Kaizen<br><span style="color:#e8590c">Brand sheet</span></h1>
+<p>Logo vectorised from the original wordmark and recoloured with the vincentbenlot.site palette. Every variant is a clean SVG (scales to any size) with a 2000px PNG beside it.</p>
+<h2>Wordmark variants</h2>
+<div class="grid" id="g"></div>
+<h2>Mark (favicon / avatar)</h2>
+<div class="grid" id="m"></div>
+<h2>Palette</h2>
+<div class="sw">
+<div><i style="background:#0b0b0b"></i><span><b>Void</b>#0b0b0b · page</span></div>
+<div><i style="background:#111111"></i><span><b>Ink</b>#111111 · base</span></div>
+<div><i style="background:#161616"></i><span><b>Surface</b>#161616 · cards</span></div>
+<div><i style="background:#2e2e2e"></i><span><b>Line</b>#2e2e2e · rules</span></div>
+<div><i style="background:#e8590c"></i><span><b>Kaizen Orange</b>#e8590c · accent</span></div>
+<div><i style="background:#c94a08"></i><span><b>Ember</b>#c94a08 · deep accent</span></div>
+<div><i style="background:#ffffff"></i><span><b>White</b>#ffffff · type</span></div>
+</div>
+<h2>Type</h2>
+<p><span style="font-weight:900;font-variation-settings:'wdth' 125;font-size:32px;color:#fff;text-transform:uppercase">Archivo Extended Black</span><br>Headlines: Archivo, width 118–125, weight 900, uppercase, tight tracking. Body: Archivo 400. Labels: IBM Plex Mono, uppercase, 0.14em tracking.</p>
+<script>
+var V=[['kaizen-accent','White + orange arrow (primary, dark)','#0b0b0b'],['kaizen-white','All white','#0b0b0b'],['kaizen-orange','All orange','#0b0b0b'],['kaizen-split','White top / orange cut','#0b0b0b'],['kaizen-ember','Orange / ember / white arrow','#0b0b0b'],['kaizen-white','Reversed on orange','#e8590c'],['kaizen-accent-ink','Ink + orange arrow (primary, light)','#ffffff'],['kaizen-ink','All ink (one-colour print)','#f4f4f4']];
+document.getElementById('g').innerHTML=V.map(function(v){return '<div class="tile"><div class="art" style="background:'+v[2]+'"><img src="assets/logo/'+v[0]+'.svg" alt="'+v[1]+'"></div><div class="cap"><span>'+v[1]+'</span><span><a href="assets/logo/'+v[0]+'.svg" download>SVG</a> · <a href="assets/logo/png/'+v[0]+'.png" download>PNG</a></span></div></div>'}).join('');
+document.getElementById('m').innerHTML=[['mark-ink','Arrow mark · ink'],['mark-orange','Arrow mark · orange']].map(function(v){return '<div class="tile sq"><div class="art" style="background:#161616"><img src="assets/logo/'+v[0]+'.svg" alt="'+v[1]+'"></div><div class="cap"><span>'+v[1]+'</span><span><a href="assets/logo/'+v[0]+'.svg" download>SVG</a> · <a href="assets/logo/png/'+v[0]+'.png" download>PNG</a></span></div></div>'}).join('');
+</script></body></html>

@@ -1,361 +1,579 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kaizen Agency — Marketing & Web Apps</title>
-<meta name="description" content="Kaizen Agency helps brands grow with sharp marketing and custom web apps — wedding planning, budget tracking, workout tracking and more.">
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaizen — Web & Automation Studio</title>
+<meta name="description" content="Kaizen designs, builds and keeps improving websites and automations for founders and service businesses.">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" href="assets/logo/mark-ink.svg" type="image/svg+xml">
+<link rel="canonical" href="https://kaizenagency.online/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kaizenagency.online/">
+<meta property="og:site_name" content="Kaizen">
+<meta property="og:title" content="Kaizen — Web & Automation Studio">
+<meta property="og:description" content="Websites and automations, built sharp and improved forever.">
+<meta property="og:image" content="https://kaizenagency.online/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://kaizenagency.online/assets/og-image.jpg">
+<link rel="apple-touch-icon" href="assets/logo/png/mark-ink.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&display=swap&text=%E6%94%B9%E5%96%84%E7%B6%99%E7%B6%9A%E7%9A%84%E6%94%B9%E8%89%AF" rel="stylesheet">
+<link rel="preload" as="image" href="assets/hero-poster.webp">
 <style>
-  :root{
-    --bg:#0a0a0a;
-    --bg-2:#111111;
-    --panel:#161616;
-    --text:#f5f5f5;
-    --muted:#9a9a9a;
-    --accent:#fb4f03;
-    --accent-2:#fb4f03;
-    --accent-3:#fb4f03;
-    --line:rgba(255,255,255,.09);
-    --grad:linear-gradient(120deg,#fb4f03 0%,#ff7a3d 100%);
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.6;
-    overflow-x:hidden;
-  }
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:1160px;margin:0 auto;padding:0 24px}
-  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+:root{
+  --bg:#0b0b0b; --bg-2:#111111; --surface:#161616; --surface-2:#1c1c1c;
+  --line:#2e2e2e; --line-soft:#1f1f1f;
+  --text:#ffffff; --muted:#a3a3a3; --dim:#6f6f6f;
+  --orange:#e8590c; --orange-deep:#c94a08; --orange-hi:#ff7a33;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --gutter:clamp(16px,4vw,56px);
+  --maxw:1440px;
+  --display:"Archivo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --jp:"Noto Sans JP","Hiragino Sans",sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--display);font-variation-settings:"wdth" 100;font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+::selection{background:var(--orange);color:#0b0b0b}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter)}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--muted)}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--orange)}
+.jp{font-family:var(--jp);font-weight:900}
+.o{color:var(--orange)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-  /* NAV */
-  header{
-    position:fixed;top:0;left:0;right:0;z-index:50;
-    backdrop-filter:blur(14px);
-    background:rgba(7,7,11,.6);
-    border-bottom:1px solid var(--line);
-  }
-  nav{display:flex;align-items:center;justify-content:space-between;height:70px}
-  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.5px}
-  .logo .mark{
-    width:34px;height:34px;display:grid;place-items:center;
-  }
-  .logo .mark::before{
-    content:"";width:30px;height:4px;border-radius:2px;background:var(--accent);
-    transform:rotate(-4deg);box-shadow:0 0 14px rgba(251,79,3,.55);
-  }
-  /* Logo image: mix-blend screen drops the black background of the wordmark
-     so only the white lettering shows on the dark site. */
-  .logo-img{height:30px;width:auto;display:block;mix-blend-mode:screen}
-  .nav-links{display:flex;gap:32px;align-items:center}
-  .nav-links a{color:var(--muted);font-size:15px;font-weight:500;transition:color .2s}
-  .nav-links a:hover{color:var(--text)}
-  .btn{
-    display:inline-block;padding:12px 24px;border-radius:100px;font-weight:600;font-size:15px;
-    background:var(--grad);color:#07070b;transition:transform .2s,box-shadow .2s;
-  }
-  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(251,79,3,.4)}
-  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
-  .btn.ghost:hover{border-color:var(--accent-2);box-shadow:none}
-  .menu-btn{display:none;background:none;border:0;color:var(--text);font-size:26px;cursor:pointer}
+/* grain */
+.grain{position:fixed;inset:-50%;z-index:90;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}100%{transform:translate(0,0)}}
 
-  /* HERO */
-  .hero{position:relative;padding:170px 0 110px;overflow:hidden}
-  .glow{position:absolute;border-radius:50%;filter:blur(120px);opacity:.5;z-index:0}
-  .glow.a{width:520px;height:520px;background:#fb4f03;top:-120px;right:-120px;opacity:.32}
-  .glow.b{width:460px;height:460px;background:#fb4f03;bottom:-160px;left:-140px;opacity:.22}
-  .glow.c{width:340px;height:340px;background:#ff7a3d;top:180px;left:40%;opacity:.14}
-  .hero .wrap{position:relative;z-index:2}
-  .pill{
-    display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;
-    border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:13px;color:var(--muted);margin-bottom:26px;
-  }
-  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-3);box-shadow:0 0 12px var(--accent-3)}
-  h1{font-size:clamp(40px,7vw,82px);line-height:1.02;letter-spacing:-2px;font-weight:850;max-width:15ch}
-  .hero p.lead{margin:26px 0 38px;font-size:clamp(17px,2.4vw,21px);color:var(--muted);max-width:56ch}
-  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
-  .stats{display:flex;gap:46px;margin-top:70px;flex-wrap:wrap}
-  .stat .n{font-size:38px;font-weight:800;letter-spacing:-1px}
-  .stat .l{color:var(--muted);font-size:14px}
+/* ---------- intro ---------- */
+.intro{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:var(--bg);pointer-events:none}
+.intro .logo{width:min(72vw,620px);overflow:visible}
+.intro .count{position:absolute;left:var(--gutter);bottom:var(--gutter);color:var(--dim)}
+.intro .count b{color:var(--text);font-weight:500}
+.intro .tag{position:absolute;right:var(--gutter);bottom:var(--gutter);color:var(--dim)}
+.intro-slash{position:fixed;inset:0;z-index:101;display:none;pointer-events:none;background:var(--orange);clip-path:polygon(0 100%,0 100%,0 100%,0 100%)}
+html.intro-on .intro{display:grid}html.intro-on .intro-slash{display:block}
 
-  /* SECTION GENERIC */
-  section{position:relative;padding:100px 0}
-  .eyebrow{color:var(--accent-3);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:13px;margin-bottom:14px}
-  .sec-title{font-size:clamp(30px,4.5vw,48px);font-weight:800;letter-spacing:-1.2px;max-width:20ch}
-  .sec-intro{color:var(--muted);font-size:18px;max-width:60ch;margin-top:16px}
-  .sec-head{margin-bottom:56px}
+/* ---------- cursor ---------- */
+.cursor,.cursor-dot{position:fixed;left:0;top:0;z-index:95;pointer-events:none;border-radius:50%;opacity:0}
+.cursor{width:44px;height:44px;margin:-22px 0 0 -22px;border:1px solid rgba(255,255,255,.35);transition:width .35s var(--ease),height .35s var(--ease),margin .35s var(--ease),background .35s,border-color .35s}
+.cursor-dot{width:6px;height:6px;margin:-3px 0 0 -3px;background:var(--orange)}
+.cursor.hover{width:86px;height:86px;margin:-43px 0 0 -43px;background:rgba(232,89,12,.12);border-color:var(--orange)}
+.cursor .lbl{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--text);opacity:0;transition:opacity .25s}
+.cursor.hover.has-lbl .lbl{opacity:1}
+@media (hover:hover) and (pointer:fine){body.has-cursor .cursor,body.has-cursor .cursor-dot{opacity:1}}
 
-  /* SERVICES */
-  .grid{display:grid;gap:20px}
-  .services{grid-template-columns:repeat(3,1fr)}
-  .card{
-    background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:32px;
-    transition:transform .25s,border-color .25s,background .25s;position:relative;overflow:hidden;
-  }
-  .card:hover{transform:translateY(-6px);border-color:rgba(251,79,3,.55)}
-  .card .ic{
-    width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;margin-bottom:20px;
-    background:rgba(251,79,3,.14);border:1px solid var(--line);
-  }
-  .card h3{font-size:21px;font-weight:700;margin-bottom:10px;letter-spacing:-.4px}
-  .card p{color:var(--muted);font-size:15px}
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:transform .5s var(--ease),background .4s,border-color .4s;border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(11,11,11,.72);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border-bottom-color:var(--line-soft)}
+.nav.hide{transform:translateY(-100%)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:76px}
+.nav .brand{display:block;width:128px}
+.nav .brand svg{width:100%;height:auto}
+.nav ul{display:flex;gap:34px;list-style:none;margin:0;padding:0}
+.nav ul a{position:relative;font-size:14px;font-weight:500;color:var(--muted);transition:color .25s;padding:8px 0}
+.nav ul a::after{content:"";position:absolute;left:0;right:100%;bottom:2px;height:1px;background:var(--orange);transition:right .4s var(--ease)}
+.nav ul a:hover{color:var(--text)}
+.nav ul a:hover::after{right:0}
+.btn{position:relative;display:inline-flex;align-items:center;gap:12px;height:52px;padding:0 26px;font-weight:600;font-size:15px;letter-spacing:.01em;border-radius:2px;overflow:hidden;isolation:isolate;transition:color .35s var(--ease)}
+.btn .arr{display:inline-block;transition:transform .45s var(--ease)}
+.btn:hover .arr{transform:translate(3px,-3px)}
+.btn-primary{background:var(--orange);color:#0b0b0b}
+.btn-primary::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--text);transform:translateX(-125%) skewX(-20deg);transform-origin:left;transition:transform .55s var(--ease)}
+.btn-primary:hover::before{transform:translateX(0) skewX(0)}
+.btn-ghost{border:1px solid var(--line);color:var(--text)}
+.btn-ghost::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--orange);transform:translateY(101%);transition:transform .5s var(--ease)}
+.btn-ghost:hover{color:#0b0b0b;border-color:var(--orange)}
+.btn-ghost:hover::before{transform:translateY(0)}
+.nav .btn{height:44px;padding:0 20px;font-size:14px}
+.menu-btn{display:none;width:44px;height:44px;position:relative}
+.menu-btn span{position:absolute;left:10px;right:10px;height:2px;background:var(--text);transition:transform .4s var(--ease),top .4s var(--ease)}
+.menu-btn span:nth-child(1){top:17px}.menu-btn span:nth-child(2){top:25px;right:18px}
+.menu-open .menu-btn span:nth-child(1){top:21px;transform:rotate(45deg)}
+.menu-open .menu-btn span:nth-child(2){top:21px;right:10px;transform:rotate(-45deg)}
+.mobile-menu{position:fixed;inset:0;z-index:49;background:var(--bg);display:flex;flex-direction:column;justify-content:center;padding:96px var(--gutter) 40px;clip-path:inset(0 0 100% 0);transition:clip-path .7s var(--ease);visibility:hidden}
+.menu-open .mobile-menu{clip-path:inset(0 0 0 0);visibility:visible}
+.mobile-menu a.big{display:block;font-size:clamp(40px,12vw,64px);font-weight:900;font-variation-settings:"wdth" 120;line-height:1.08;letter-spacing:-.02em;padding:6px 0;border-bottom:1px solid var(--line-soft)}
+.mobile-menu a.big span{color:var(--orange);font-family:var(--mono);font-size:12px;font-weight:400;vertical-align:top;margin-right:12px}
+.mobile-menu .btn{margin-top:36px;align-self:flex-start}
 
-  /* APPS */
-  .apps{grid-template-columns:repeat(3,1fr)}
-  .app-card{
-    background:linear-gradient(160deg,var(--panel),var(--bg-2));
-    border:1px solid var(--line);border-radius:22px;padding:0;overflow:hidden;
-    transition:transform .25s,border-color .25s;display:flex;flex-direction:column;
-  }
-  .app-card:hover{transform:translateY(-6px);border-color:rgba(251,79,3,.55)}
-  .app-top{height:150px;display:grid;place-items:center;font-size:56px;position:relative}
-  .app-top.wed{background:linear-gradient(135deg,rgba(251,79,3,.20),rgba(255,255,255,.04))}
-  .app-top.bud{background:linear-gradient(135deg,rgba(251,79,3,.12),rgba(255,255,255,.06))}
-  .app-top.gym{background:linear-gradient(135deg,rgba(251,79,3,.28),rgba(255,255,255,.03))}
-  .app-body{padding:26px 28px 30px}
-  .app-body h3{font-size:22px;font-weight:750;letter-spacing:-.5px;margin-bottom:8px}
-  .app-body p{color:var(--muted);font-size:15px;margin-bottom:16px}
-  .tags{display:flex;flex-wrap:wrap;gap:8px}
-  .tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:5px 11px;border-radius:100px}
-  .soon-badge{
-    position:absolute;top:12px;right:12px;
-    background:rgba(255,255,255,.06);border:1px solid var(--line);
-    color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.4px;
-    padding:4px 11px;border-radius:100px;display:flex;align-items:center;gap:6px;
-  }
-  .soon-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
-  .app-card.soon{opacity:.72}
-  .app-card.soon:hover{opacity:1}
-  .app-link{display:inline-block;margin-top:16px;color:var(--accent-3);font-weight:600;font-size:15px}
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;padding:120px 0 clamp(40px,7vh,84px)}
+.hero-media{position:absolute;inset:-6% -4%;z-index:0;will-change:transform}
+.hero-media video,.hero-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:68% 50%}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(11,11,11,.92) 0%,rgba(11,11,11,.55) 42%,rgba(11,11,11,0) 70%),linear-gradient(0deg,var(--bg) 0%,rgba(11,11,11,0) 38%)}
+.hero .wrap{position:relative;z-index:2}
+.hero .eyebrow{margin-bottom:28px}
+.hero h1{margin:0;font-weight:900;font-variation-settings:"wdth" 125;font-size:clamp(52px,10.2vw,168px);line-height:.86;letter-spacing:-.035em;text-transform:uppercase}
+.hero h1 .line{display:block;overflow:hidden;padding:.04em 0 .06em;margin-bottom:-.06em}
+.hero h1 .ch{display:inline-block;will-change:transform}
+.hero h1 .wd{display:inline-block;white-space:nowrap}
+.hero h1 .slash{color:var(--orange)}
+.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-top:44px;flex-wrap:wrap}
+.hero-bottom p{max-width:470px;margin:0;color:var(--muted);font-size:18px}
+.hero-bottom p strong{color:var(--text);font-weight:600}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.hero-jp{position:absolute;right:var(--gutter);top:50%;z-index:2;writing-mode:vertical-rl;font-size:clamp(14px,1.1vw,18px);letter-spacing:.5em;color:rgba(255,255,255,.4)}
+.hero-jp b{color:var(--orange);font-weight:900}
+.scroll-cue{position:absolute;left:50%;bottom:22px;z-index:2;width:1px;height:56px;background:var(--line);overflow:hidden;margin-left:-.5px}
+.scroll-cue::after{content:"";position:absolute;left:0;top:-50%;width:1px;height:50%;background:var(--orange);animation:cue 2.2s var(--ease) infinite}
+@keyframes cue{to{top:100%}}
 
-  /* PROCESS */
-  .process{grid-template-columns:repeat(4,1fr)}
-  .step{padding:28px;border:1px solid var(--line);border-radius:18px;background:var(--bg-2)}
-  .step .num{font-size:14px;font-weight:800;color:var(--accent);letter-spacing:1px}
-  .step h4{font-size:18px;margin:12px 0 8px;font-weight:700}
-  .step p{color:var(--muted);font-size:14px}
+/* ---------- marquee ---------- */
+.marquee{position:relative;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);overflow:hidden;padding:26px 0;background:var(--bg-2)}
+.marquee-track{display:flex;width:max-content;will-change:transform}
+.marquee-track span{display:flex;align-items:center;gap:44px;padding-right:44px;font-size:clamp(34px,5.6vw,88px);font-weight:900;font-variation-settings:"wdth" 125;text-transform:uppercase;letter-spacing:-.02em;line-height:1;white-space:nowrap}
+.marquee-track .out{color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.35)}
+.marquee-track i{display:inline-block;width:.55em;height:.55em;background:var(--orange);clip-path:polygon(30% 0,100% 0,70% 100%,0 100%);font-style:normal}
 
-  /* ABOUT */
-  .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
-  .about-panel{
-    border:1px solid var(--line);border-radius:24px;padding:38px;background:var(--panel);
-    display:grid;grid-template-columns:1fr 1fr;gap:26px;
-  }
-  .about-panel .b .n{font-size:34px;font-weight:800;letter-spacing:-1px}
-  .about-panel .b .l{color:var(--muted);font-size:14px}
-  .kaizen-note{margin-top:22px;padding:18px 22px;border-left:3px solid var(--accent);background:rgba(251,79,3,.10);border-radius:8px;color:var(--muted);font-size:15px}
+/* ---------- section scaffolding ---------- */
+section{position:relative}
+.sec{padding:clamp(96px,14vw,200px) 0}
+.sec-head{display:grid;grid-template-columns:1fr 1.6fr;gap:40px;align-items:end;margin-bottom:clamp(48px,7vw,96px)}
+.sec-head h2{margin:0;font-weight:900;font-variation-settings:"wdth" 118;font-size:clamp(40px,6.4vw,104px);line-height:.9;letter-spacing:-.03em;text-transform:uppercase}
+.sec-head p{margin:0;max-width:520px;color:var(--muted);font-size:18px;justify-self:end}
+.num{font-family:var(--mono);font-size:12px;color:var(--orange);letter-spacing:.14em}
+.reveal-line{display:block;overflow:hidden}
+.reveal-line>span{display:inline-block}
 
-  /* CTA / CONTACT */
-  .cta{
-    text-align:center;border:1px solid var(--line);border-radius:28px;padding:64px 32px;
-    background:radial-gradient(circle at 50% 0%,rgba(251,79,3,.16),transparent 60%),var(--bg-2);position:relative;overflow:hidden;
-  }
-  .cta h2{font-size:clamp(30px,5vw,50px);font-weight:850;letter-spacing:-1.4px;max-width:18ch;margin:0 auto 18px}
-  .cta p{color:var(--muted);font-size:18px;max-width:52ch;margin:0 auto 34px}
-  .contact-methods{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+/* ---------- manifesto ---------- */
+.manifesto{overflow:hidden;background:var(--bg)}
+.manifesto-bg{position:absolute;inset:-20% 0;z-index:0;background:url(assets/metal.webp) center/cover no-repeat;opacity:.5;will-change:transform}
+.manifesto::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,var(--bg) 0%,rgba(11,11,11,.6) 30%,rgba(11,11,11,.6) 70%,var(--bg) 100%)}
+.manifesto .wrap{position:relative;z-index:2}
+.manifesto-jp{position:absolute;right:calc(var(--gutter) - .06em);top:-.12em;z-index:1;font-size:clamp(160px,30vw,460px);line-height:1;color:transparent;-webkit-text-stroke:1px rgba(232,89,12,.28);user-select:none;pointer-events:none;will-change:transform}
+.manifesto-text{margin:28px 0 0;font-weight:700;font-variation-settings:"wdth" 100;font-size:clamp(30px,4.4vw,68px);line-height:1.08;letter-spacing:-.02em;max-width:1200px}
+.manifesto-text .w{display:inline-block;opacity:.14;transition:none}
+.manifesto-text .w.hl{color:var(--orange)}
+.manifesto-sign{display:flex;gap:28px;margin-top:56px;color:var(--muted);flex-wrap:wrap}
+.manifesto-sign div{border-left:1px solid var(--line);padding-left:16px}
+.manifesto-sign b{display:block;color:var(--text);font-weight:600;font-size:18px;margin-top:4px}
 
-  /* FOOTER */
-  footer{border-top:1px solid var(--line);padding:44px 0 40px;margin-top:20px}
-  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
-  .foot .muted{color:var(--muted);font-size:14px}
-  .socials{display:flex;gap:14px}
-  .socials a{
-    width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;
-    color:var(--muted);transition:.2s;font-size:15px;font-weight:600;
-  }
-  .socials a:hover{color:var(--text);border-color:var(--accent-2);transform:translateY(-2px)}
+/* ---------- services ---------- */
+.services-list{display:grid;gap:clamp(18px,2vw,28px)}
+.svc{position:sticky;top:96px;display:grid;grid-template-columns:1.05fr 1fr;min-height:min(72vh,620px);background:var(--surface);border:1px solid var(--line-soft);overflow:hidden;transform-origin:50% 0}
+.svc:nth-child(2){top:116px}.svc:nth-child(3){top:136px}
+.svc-body{display:flex;flex-direction:column;padding:clamp(28px,4vw,56px)}
+.svc-body .top{display:flex;justify-content:space-between;align-items:center;color:var(--dim)}
+.svc h3{margin:auto 0 18px;font-weight:900;font-variation-settings:"wdth" 120;font-size:clamp(34px,4.4vw,68px);line-height:.92;letter-spacing:-.025em;text-transform:uppercase;padding-top:40px}
+.svc p{margin:0 0 28px;color:var(--muted);max-width:460px}
+.svc ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.svc li{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border:1px solid var(--line);color:var(--muted)}
+.svc-media{position:relative;overflow:hidden;background:#000}
+.svc-media img{position:absolute;inset:-12% 0;width:100%;height:124%;object-fit:cover;will-change:transform}
+.svc-media::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--surface) 0%,rgba(22,22,22,0) 30%)}
 
-  /* reveal animation */
-  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
-  .reveal.in{opacity:1;transform:none}
+/* ---------- work (horizontal pin) ---------- */
+.work{background:var(--bg-2)}
+.work-pin{position:relative}
+.work-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.work-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:clamp(24px,4vh,48px)}
+.work-head h2{margin:0;font-weight:900;font-variation-settings:"wdth" 118;font-size:clamp(40px,6.4vw,104px);line-height:.9;letter-spacing:-.03em;text-transform:uppercase}
+.work-progress{width:180px;height:1px;background:var(--line);position:relative}
+.work-progress i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--orange)}
+.work-track{display:flex;gap:clamp(18px,2.4vw,36px);padding:0 var(--gutter);width:max-content;will-change:transform}
+.case{position:relative;flex:0 0 auto;width:min(62vw,860px);display:block}
+.case-frame{position:relative;aspect-ratio:16/10;overflow:hidden;background:#000;border:1px solid var(--line)}
+.case-bar{position:absolute;top:0;left:0;right:0;height:30px;z-index:2;display:flex;align-items:center;gap:6px;padding:0 12px;background:rgba(17,17,17,.92);border-bottom:1px solid var(--line-soft)}
+.case-bar i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.case-bar span{margin-left:10px;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.06em}
+.case-frame img{position:absolute;top:30px;left:0;width:100%;height:calc(100% - 30px);object-fit:cover;object-position:top;transform:scale(1.04);transition:transform 1.1s var(--ease),filter .6s;filter:grayscale(.35) brightness(.85)}
+.case:hover .case-frame img{transform:scale(1);filter:none}
+.case-frame::after{content:"";position:absolute;inset:0;z-index:3;border:1px solid var(--orange);opacity:0;transition:opacity .4s}
+.case:hover .case-frame::after{opacity:1}
+.case-meta{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:18px}
+.case-meta h3{margin:0;font-size:clamp(22px,2vw,30px);font-weight:800;font-variation-settings:"wdth" 110;letter-spacing:-.01em}
+.case-meta p{margin:4px 0 0;color:var(--muted);font-size:15px}
+.case-meta .mono{color:var(--dim);white-space:nowrap}
+.case-idx{position:absolute;left:-.04em;top:-.62em;z-index:4;font-size:clamp(70px,8vw,130px);font-weight:900;font-variation-settings:"wdth" 125;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.22);pointer-events:none}
+.case-end{flex:0 0 auto;width:min(40vw,520px);display:flex;flex-direction:column;justify-content:center;gap:24px;padding-left:clamp(10px,3vw,40px)}
+.case-end p{margin:0;font-size:clamp(26px,2.6vw,40px);font-weight:800;font-variation-settings:"wdth" 110;line-height:1.05;letter-spacing:-.02em}
 
-  @media(max-width:900px){
-    .services,.apps{grid-template-columns:1fr 1fr}
-    .process{grid-template-columns:1fr 1fr}
-    .about-grid{grid-template-columns:1fr;gap:34px}
-  }
-  @media(max-width:640px){
-    .nav-links{display:none}
-    .menu-btn{display:block}
-    .services,.apps,.process{grid-template-columns:1fr}
-    .about-panel{grid-template-columns:1fr}
-    .stats{gap:30px}
-    .hero{padding:140px 0 80px}
-  }
+/* ---------- process ---------- */
+.process-grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line)}
+.process-path{position:absolute;left:0;right:0;top:-1px;height:2px;overflow:visible;pointer-events:none}
+.step{position:relative;padding:44px 28px 20px 0}
+.step+.step{padding-left:28px;border-left:1px solid var(--line-soft)}
+.step .dot{position:absolute;top:-7px;left:0;width:13px;height:13px;background:var(--bg);border:1px solid var(--line);transform:rotate(45deg);transition:background .4s,border-color .4s}
+.step+.step .dot{left:-7px}
+.step.on .dot{background:var(--orange);border-color:var(--orange)}
+.step h3{margin:22px 0 12px;font-size:clamp(26px,2.4vw,36px);font-weight:900;font-variation-settings:"wdth" 120;text-transform:uppercase;letter-spacing:-.02em;line-height:1}
+.step p{margin:0;color:var(--muted);font-size:16px}
+.step .jp{display:block;margin-top:20px;font-size:13px;color:var(--dim);letter-spacing:.3em}
+.loop-note{display:flex;align-items:center;gap:14px;margin-top:56px;color:var(--muted)}
+.loop-note svg{width:40px;height:40px;flex:0 0 auto}
+
+/* ---------- stairs / statement ---------- */
+.statement{position:relative;min-height:110vh;display:flex;align-items:center;overflow:hidden}
+.statement-bg{position:absolute;inset:-15% 0;background:url(assets/steps.webp) 70% center/cover no-repeat;will-change:transform}
+.statement::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(11,11,11,.95) 0%,rgba(11,11,11,.5) 55%,rgba(11,11,11,.15) 100%),linear-gradient(0deg,var(--bg) 0%,rgba(11,11,11,0) 25%,rgba(11,11,11,0) 75%,var(--bg) 100%)}
+.statement .wrap{position:relative;z-index:2}
+.statement h2{margin:24px 0 0;font-weight:900;font-variation-settings:"wdth" 125;font-size:clamp(46px,8.6vw,148px);line-height:.86;letter-spacing:-.035em;text-transform:uppercase;max-width:12ch}
+.statement h2 .o{display:block}
+.percent{display:flex;gap:clamp(24px,5vw,80px);margin-top:56px;flex-wrap:wrap}
+.percent div{max-width:280px}
+.percent b{display:block;font-size:clamp(40px,4.6vw,72px);font-weight:900;font-variation-settings:"wdth" 125;line-height:1;letter-spacing:-.03em}
+.percent div>span{display:block;margin-top:8px;color:var(--muted);font-size:15px}
+
+/* ---------- faq-ish principles ---------- */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line-soft)}
+.pr{position:relative;background:var(--bg);padding:clamp(28px,3vw,44px);min-height:280px;display:flex;flex-direction:column;overflow:hidden;transition:background .5s}
+.pr::before{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease)}
+.pr:hover{background:var(--surface)}
+.pr:hover::before{transform:scaleX(1)}
+.pr h3{margin:auto 0 12px;padding-top:44px;font-size:24px;font-weight:800;font-variation-settings:"wdth" 110;letter-spacing:-.01em}
+.pr p{margin:0;color:var(--muted);font-size:16px}
+.pr svg{width:34px;height:34px;color:var(--orange)}
+
+/* ---------- CTA ---------- */
+.cta{position:relative;overflow:hidden;padding:clamp(110px,16vw,230px) 0;text-align:center}
+.cta-glow{position:absolute;left:50%;top:50%;width:min(90vw,1100px);aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(232,89,12,.22),rgba(232,89,12,0));pointer-events:none}
+.cta .wrap{position:relative}
+.cta h2{margin:22px 0 0;font-weight:900;font-variation-settings:"wdth" 125;font-size:clamp(54px,11vw,190px);line-height:.84;letter-spacing:-.04em;text-transform:uppercase}
+.cta h2 .line{display:block;overflow:hidden;padding-bottom:.04em}
+.cta h2 .line>span{display:inline-block}
+.cta p{margin:32px auto 44px;max-width:520px;color:var(--muted);font-size:18px}
+.magnet{display:inline-block}
+.cta .btn{height:68px;padding:0 38px;font-size:17px}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line-soft);padding:clamp(56px,7vw,96px) 0 28px;overflow:hidden}
+.foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-bottom:clamp(56px,8vw,120px)}
+.foot-top p{margin:12px 0 0;color:var(--muted);max-width:360px}
+.foot-top h4{margin:0 0 16px;color:var(--dim);font-weight:400}
+.foot-top ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.foot-top ul a{color:var(--muted);transition:color .25s}
+.foot-top ul a:hover{color:var(--orange)}
+.foot-logo{width:100%;overflow:visible}
+.foot-logo .t,.foot-logo .b{transition:transform .8s var(--ease)}
+.foot-logo:hover .t{transform:translateX(-1.2%)}
+.foot-logo:hover .b{transform:translateX(1.2%)}
+.foot-bottom{display:flex;justify-content:space-between;gap:16px;margin-top:24px;color:var(--dim);flex-wrap:wrap}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .nav ul,.nav .btn{display:none}
+  .menu-btn{display:block}
+  .sec-head{grid-template-columns:1fr}
+  .sec-head p{justify-self:start}
+  .svc{grid-template-columns:1fr;min-height:0;position:relative;top:auto!important}
+  .svc-media{aspect-ratio:16/10;order:-1}
+  .svc-media::after{background:linear-gradient(0deg,var(--surface) 0%,rgba(22,22,22,0) 40%)}
+  .process-grid{grid-template-columns:1fr 1fr}
+  .step:nth-child(3){padding-left:0;border-left:0}
+  .principles{grid-template-columns:1fr}
+  .foot-top{grid-template-columns:1fr 1fr}
+  .foot-top>div:first-child{grid-column:1/-1}
+  .hero-jp{display:none}
+}
+@media (max-width:720px){
+  body{font-size:16px}
+  .hero{align-items:flex-end;padding-top:100px}
+  .hero-media video,.hero-media img{object-position:72% 50%}
+  .hero::after{background:linear-gradient(0deg,var(--bg) 8%,rgba(11,11,11,.7) 52%,rgba(11,11,11,.25) 100%)}
+  .hero-bottom{margin-top:30px;gap:28px}
+  .hero-bottom p{font-size:16px}
+  .hero-ctas{width:100%}
+  .hero-ctas .btn{flex:1 1 auto;justify-content:center}
+  .scroll-cue{display:none}
+  .work-sticky{position:relative;height:auto;padding:96px 0}
+  .work-pin{height:auto!important}
+  .work-track{flex-direction:column;width:auto;transform:none!important;gap:56px}
+  .case,.case-end{width:100%}
+  .case-end{padding:0}
+  .work-progress{display:none}
+  .process-grid{grid-template-columns:1fr;border-top:0;border-left:1px solid var(--line);margin-left:6px}
+  .process-path{display:none}
+  .step,.step+.step{padding:0 0 40px 28px;border-left:0}
+  .step .dot,.step+.step .dot{left:-7px;top:4px}
+  .step h3{margin-top:0}
+  .statement{min-height:0;padding:120px 0}
+  .foot-top{grid-template-columns:1fr}
+  .manifesto-sign{gap:20px}
+}
+/* reduced motion / no-JS: work reel becomes a grid instead of a pinned track */
+html:not(.anim) .work-sticky{position:relative;height:auto;padding:clamp(96px,12vw,180px) 0}
+html:not(.anim) .work-track{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));width:auto;gap:64px 36px}
+html:not(.anim) .case,html:not(.anim) .case-end{width:auto}
+html:not(.anim) .work-progress{display:none}
+/* pre-animation states (only when motion is allowed) */
+.anim [data-fade],.anim [data-hero-fade]{opacity:0}
+.anim [data-reveal-lines] .reveal-line>span,.anim [data-reveal-lines] .line>span{transform:translateY(105%)}
+.anim .hero h1 .ch{transform:translateY(110%)}
+.anim .hero-media{opacity:0}
+.intro-on #nav{opacity:0}
+.intro-on .intro .t,.intro-on .intro .b,.intro-on .intro .a{opacity:0}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){
+  .grain,.scroll-cue::after{animation:none}
+  .manifesto-text .w{opacity:1}
+}
 </style>
 </head>
 <body>
+<script>
+  // once-per-session intro; skip for reduced motion
+  (function(){var d=document.documentElement,rm=matchMedia('(prefers-reduced-motion: reduce)').matches,seen=false;
+  try{seen=sessionStorage.getItem('kz-intro')==='1'}catch(e){}
+  if(!rm){d.classList.add('anim');if(!seen)d.classList.add('intro-on')}
+  // safety net: if main.js never boots (CDN blocked, error), show the page as-is
+  setTimeout(function(){if(!window.__kz){d.classList.remove('anim','intro-on');document.body&&(document.body.style.overflow='')}},6000)})();
+</script>
+<div class="grain" aria-hidden="true"></div>
+<div class="intro" aria-hidden="true">
+  <svg class="logo" viewBox="-1 -1 347.25 67.38"><path class="t" fill="#fff" d="M165.25 15.62 L166.38 16.38 L196.00 16.50 L196.12 17.25 L181.00 32.38 L181.62 32.88 L197.00 32.62 L216.38 14.00 L218.00 5.50 L217.38 4.88 L168.38 4.88 L167.12 6.00Z"/><path class="t" fill="#fff" d="M143.25 4.88 L141.88 5.75 L136.62 32.50 L137.38 33.38 L150.00 33.25 L151.38 30.00 L156.00 5.50 L155.25 4.88Z"/><path class="t" fill="#fff" d="M6.25 33.88 L7.25 34.50 L36.88 34.25 L38.62 31.25 L66.50 6.88 L67.50 5.12 L51.38 5.25 L21.25 31.88 L20.62 30.25 L25.50 5.38 L24.88 4.88 L12.12 5.12Z"/><path class="t" fill="#fff" d="M286.50 5.38 L281.75 27.88 L281.62 31.88 L294.12 31.75 L295.00 31.12 L296.00 28.38 L298.88 31.75 L313.38 31.25 L298.00 5.12 L288.00 4.75Z"/><path class="t" fill="#fff" d="M228.50 5.38 L223.12 31.38 L224.12 32.50 L264.62 32.00 L265.50 30.38 L264.88 29.38 L238.00 29.25 L237.62 28.12 L239.75 17.38 L241.25 16.12 L271.25 16.12 L272.00 15.50 L273.88 6.38 L273.25 4.88 L230.38 4.75Z"/><path class="t" fill="#fff" d="M109.00 5.50 L107.12 4.75 L94.88 5.25 L77.75 31.38 L77.12 33.62 L90.12 33.50 L99.00 19.38 L99.88 20.38 L102.88 33.25 L115.25 33.38 L115.50 31.50Z"/><path class="b" fill="#fff" d="M16.38 50.62 L2.88 50.75 L0.12 65.00 L13.62 65.12 L16.38 53.12Z"/><path class="b" fill="#fff" d="M123.50 65.00 L120.12 50.12 L119.25 49.50 L66.88 49.75 L64.88 51.38 L57.25 63.25 L55.88 62.50 L48.25 50.50 L33.38 50.12 L32.75 50.75 L40.75 63.50 L42.62 65.38 L70.62 65.38 L79.12 52.38 L106.00 52.38 L107.25 53.38 L110.00 65.25Z"/><path class="b" fill="#fff" d="M133.50 49.62 L130.38 65.00 L144.12 65.25 L147.12 49.62Z"/><path class="b" fill="#fff" d="M154.50 64.25 L155.00 65.38 L206.75 65.38 L208.38 60.88 L209.38 54.75 L208.88 53.88 L177.25 54.00 L176.75 53.12 L179.50 50.38 L179.62 48.88 L164.75 49.00 L162.38 50.25 L156.75 55.75Z"/><path class="b" fill="#fff" d="M216.62 64.00 L217.12 65.38 L262.62 65.38 L263.38 64.75 L265.38 55.12 L264.88 54.25 L233.12 54.25 L232.62 52.88 L233.50 49.12 L233.00 48.50 L220.50 48.50 L219.62 49.25Z"/><path class="b" fill="#fff" d="M291.00 48.00 L277.88 48.50 L274.62 63.50 L275.00 65.38 L288.38 65.00 L291.38 50.00Z"/><path class="b" fill="#fff" d="M333.00 47.75 L308.88 47.75 L308.38 48.50 L318.25 65.12 L329.25 65.38 L330.12 64.75Z"/><path class="a" fill="#fff" d="M336.25 0.00 L323.25 8.75 L326.75 10.25 L323.00 30.12 L323.38 31.38 L336.25 31.38 L337.25 29.12 L340.12 13.88 L341.12 12.62 L343.75 13.25 L345.25 12.88 L341.50 7.38 L341.50 5.25 L339.62 4.38Z"/></svg>
+  <div class="count mono"><b class="cnt">000</b> / 100</div>
+  <div class="tag mono">改善 — Change for the better</div>
+</div>
+<div class="intro-slash" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="lbl">VIEW</span></div>
+<div class="cursor-dot" aria-hidden="true"></div>
 
-<header>
+<header class="nav" id="nav">
   <div class="wrap">
-    <nav>
-      <a href="#top" class="logo"><img src="logo.png" alt="Kaizen Agency" class="logo-img"></a>
-      <div class="nav-links">
-        <a href="#services">Services</a>
-        <a href="#apps">Web Apps</a>
-        <a href="#process">Process</a>
-        <a href="#about">About</a>
-        <a href="#contact" class="btn">Let's talk</a>
-      </div>
-      <button class="menu-btn" aria-label="menu" onclick="document.querySelector('.nav-links').style.display= (getComputedStyle(document.querySelector('.nav-links')).display==='none'?'flex':'none')">☰</button>
-    </nav>
+    <a class="brand" href="#top" aria-label="Kaizen — home"><svg viewBox="-1 -1 347.25 67.38" aria-hidden="true"><path class="t" fill="#fff" d="M165.25 15.62 L166.38 16.38 L196.00 16.50 L196.12 17.25 L181.00 32.38 L181.62 32.88 L197.00 32.62 L216.38 14.00 L218.00 5.50 L217.38 4.88 L168.38 4.88 L167.12 6.00Z"/><path class="t" fill="#fff" d="M143.25 4.88 L141.88 5.75 L136.62 32.50 L137.38 33.38 L150.00 33.25 L151.38 30.00 L156.00 5.50 L155.25 4.88Z"/><path class="t" fill="#fff" d="M6.25 33.88 L7.25 34.50 L36.88 34.25 L38.62 31.25 L66.50 6.88 L67.50 5.12 L51.38 5.25 L21.25 31.88 L20.62 30.25 L25.50 5.38 L24.88 4.88 L12.12 5.12Z"/><path class="t" fill="#fff" d="M286.50 5.38 L281.75 27.88 L281.62 31.88 L294.12 31.75 L295.00 31.12 L296.00 28.38 L298.88 31.75 L313.38 31.25 L298.00 5.12 L288.00 4.75Z"/><path class="t" fill="#fff" d="M228.50 5.38 L223.12 31.38 L224.12 32.50 L264.62 32.00 L265.50 30.38 L264.88 29.38 L238.00 29.25 L237.62 28.12 L239.75 17.38 L241.25 16.12 L271.25 16.12 L272.00 15.50 L273.88 6.38 L273.25 4.88 L230.38 4.75Z"/><path class="t" fill="#fff" d="M109.00 5.50 L107.12 4.75 L94.88 5.25 L77.75 31.38 L77.12 33.62 L90.12 33.50 L99.00 19.38 L99.88 20.38 L102.88 33.25 L115.25 33.38 L115.50 31.50Z"/><path class="b" fill="#fff" d="M16.38 50.62 L2.88 50.75 L0.12 65.00 L13.62 65.12 L16.38 53.12Z"/><path class="b" fill="#fff" d="M123.50 65.00 L120.12 50.12 L119.25 49.50 L66.88 49.75 L64.88 51.38 L57.25 63.25 L55.88 62.50 L48.25 50.50 L33.38 50.12 L32.75 50.75 L40.75 63.50 L42.62 65.38 L70.62 65.38 L79.12 52.38 L106.00 52.38 L107.25 53.38 L110.00 65.25Z"/><path class="b" fill="#fff" d="M133.50 49.62 L130.38 65.00 L144.12 65.25 L147.12 49.62Z"/><path class="b" fill="#fff" d="M154.50 64.25 L155.00 65.38 L206.75 65.38 L208.38 60.88 L209.38 54.75 L208.88 53.88 L177.25 54.00 L176.75 53.12 L179.50 50.38 L179.62 48.88 L164.75 49.00 L162.38 50.25 L156.75 55.75Z"/><path class="b" fill="#fff" d="M216.62 64.00 L217.12 65.38 L262.62 65.38 L263.38 64.75 L265.38 55.12 L264.88 54.25 L233.12 54.25 L232.62 52.88 L233.50 49.12 L233.00 48.50 L220.50 48.50 L219.62 49.25Z"/><path class="b" fill="#fff" d="M291.00 48.00 L277.88 48.50 L274.62 63.50 L275.00 65.38 L288.38 65.00 L291.38 50.00Z"/><path class="b" fill="#fff" d="M333.00 47.75 L308.88 47.75 L308.38 48.50 L318.25 65.12 L329.25 65.38 L330.12 64.75Z"/><path class="a" fill="#e8590c" d="M336.25 0.00 L323.25 8.75 L326.75 10.25 L323.00 30.12 L323.38 31.38 L336.25 31.38 L337.25 29.12 L340.12 13.88 L341.12 12.62 L343.75 13.25 L345.25 12.88 L341.50 7.38 L341.50 5.25 L339.62 4.38Z"/></svg></a>
+    <nav aria-label="Primary"><ul>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#about">About</a></li>
+    </ul></nav>
+    <a class="btn btn-primary" href="https://calendly.com/kaizen-agency/discovery-call-with-vince" target="_blank" rel="noopener">Book a call <span class="arr">↗</span></a>
+    <button class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
   </div>
 </header>
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <a class="big" href="#services"><span>01</span>Services</a>
+  <a class="big" href="#work"><span>02</span>Work</a>
+  <a class="big" href="#process"><span>03</span>Process</a>
+  <a class="big" href="#about"><span>04</span>About</a>
+  <a class="btn btn-primary" href="https://calendly.com/kaizen-agency/discovery-call-with-vince" target="_blank" rel="noopener">Book a discovery call <span class="arr">↗</span></a>
+</div>
 
-<a id="top"></a>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="glow a"></div>
-  <div class="glow b"></div>
-  <div class="glow c"></div>
-  <div class="wrap">
-    <span class="pill"><span class="dot"></span> Marketing studio &amp; product builders</span>
-    <h1>Continuous growth, <span class="grad-text">one improvement at a time.</span></h1>
-    <p class="lead">Kaizen Agency blends sharp marketing with custom web apps that people actually love to use. We help brands get seen, get chosen, and keep improving — the kaizen way.</p>
-    <div class="hero-actions">
-      <a href="#contact" class="btn">Start a project</a>
-      <a href="#apps" class="btn ghost">See our apps</a>
+<main id="top">
+  <section class="hero" aria-label="Introduction">
+    <div class="hero-media" data-parallax="0.25">
+      <video muted loop playsinline preload="metadata" poster="assets/hero-poster.webp" aria-hidden="true">
+        <source src="assets/hero.webm" type="video/webm">
+        <source src="assets/hero.mp4" type="video/mp4">
+      </video>
     </div>
-    <div class="stats">
-      <div class="stat reveal"><div class="n grad-text">3+</div><div class="l">Web apps built</div></div>
-      <div class="stat reveal"><div class="n grad-text">360°</div><div class="l">Marketing &amp; product</div></div>
-      <div class="stat reveal"><div class="n grad-text">100%</div><div class="l">Custom, no templates</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- SERVICES -->
-<section id="services">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">What we do</div>
-      <h2 class="sec-title">Marketing that moves the needle.</h2>
-      <p class="sec-intro">From strategy to launch, we run the marketing engine so your brand grows while you focus on the work you love.</p>
-    </div>
-    <div class="grid services">
-      <div class="card reveal"><div class="ic">📣</div><h3>Social Media Management</h3><p>Content, community and calendars that keep your brand active, on-message, and growing across every platform.</p></div>
-      <div class="card reveal"><div class="ic">🎯</div><h3>Paid Ads &amp; Campaigns</h3><p>Targeted campaigns on Facebook, Instagram and beyond — built to reach the right people and convert.</p></div>
-      <div class="card reveal"><div class="ic">✍️</div><h3>Content &amp; Creative</h3><p>Scroll-stopping graphics, copy and video that tell your story and make people stop and pay attention.</p></div>
-      <div class="card reveal"><div class="ic">🌱</div><h3>Brand Strategy</h3><p>Positioning, voice and identity work that gives your business a clear, memorable place in the market.</p></div>
-      <div class="card reveal"><div class="ic">📊</div><h3>Analytics &amp; Growth</h3><p>We track what matters, learn fast, and refine — small continuous improvements that compound over time.</p></div>
-      <div class="card reveal"><div class="ic">💻</div><h3>Custom Web Apps</h3><p>Beyond marketing, we design and build web applications tailored to your idea — from concept to launch.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- APPS -->
-<section id="apps" style="background:var(--bg-2)">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">Our products</div>
-      <h2 class="sec-title">Web apps we've built &amp; ship.</h2>
-      <p class="sec-intro">Not just campaigns — real, working products. Here's a taste of the apps we design, build and offer.</p>
-    </div>
-    <div class="grid apps">
-      <div class="app-card reveal">
-        <div class="app-top wed">💍</div>
-        <div class="app-body">
-          <h3>Wedding Planner</h3>
-          <p>Everything a couple needs to plan the big day — guest lists, budgets, checklists and timelines in one calm place.</p>
-          <div class="tags"><span class="tag">Checklists</span><span class="tag">Guest list</span><span class="tag">Timeline</span></div>
-          <a href="wedding-planner/" class="app-link">Open the planner →</a>
-        </div>
-      </div>
-      <div class="app-card soon reveal">
-        <div class="app-top bud">💰<span class="soon-badge"><span class="dot"></span>In development</span></div>
-        <div class="app-body">
-          <h3>Budget Tracker</h3>
-          <p>Track income, expenses and savings goals with a clean dashboard that makes money simple to understand.</p>
-          <div class="tags"><span class="tag">Expenses</span><span class="tag">Goals</span><span class="tag">Insights</span></div>
-        </div>
-      </div>
-      <div class="app-card soon reveal">
-        <div class="app-top gym">🏋️<span class="soon-badge"><span class="dot"></span>In development</span></div>
-        <div class="app-body">
-          <h3>Workout Tracker</h3>
-          <p>Log sessions, follow routines and watch your progress climb — a training companion that keeps you consistent.</p>
-          <div class="tags"><span class="tag">Routines</span><span class="tag">Progress</span><span class="tag">Streaks</span></div>
+    <div class="wrap">
+      <div class="eyebrow mono" data-hero-fade>Web &amp; automation studio · Est. Philippines</div>
+      <h1 aria-label="Built sharp. Improved forever.">
+        <span class="line" aria-hidden="true" data-split>Built sharp<span class="slash">/</span></span>
+        <span class="line" aria-hidden="true" data-split>Improved</span>
+        <span class="line" aria-hidden="true" data-split>forever<span class="slash">.</span></span>
+      </h1>
+      <div class="hero-bottom">
+        <p data-hero-fade>Kaizen designs, builds and <strong>keeps improving</strong> websites and automations for founders and service businesses — one sharp release at a time.</p>
+        <div class="hero-ctas" data-hero-fade>
+          <span class="magnet"><a class="btn btn-primary" href="https://calendly.com/kaizen-agency/discovery-call-with-vince" target="_blank" rel="noopener" data-cursor="BOOK">Book a discovery call <span class="arr">↗</span></a></span>
+          <span class="magnet"><a class="btn btn-ghost" href="#work">See the work</a></span>
         </div>
       </div>
     </div>
-    <p style="text-align:center;color:var(--muted);margin-top:36px;font-size:16px" class="reveal">Have an idea for an app? <a href="#contact" style="color:var(--accent-3);font-weight:600">Let's build it together →</a></p>
-  </div>
-</section>
+    <div class="hero-jp jp" aria-hidden="true"><b>改善</b>　継続的改良</div>
+    <div class="scroll-cue" aria-hidden="true"></div>
+  </section>
 
-<!-- PROCESS -->
-<section id="process">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">How we work</div>
-      <h2 class="sec-title">The Kaizen method.</h2>
-      <p class="sec-intro">Kaizen means "change for the better." We work in small, deliberate steps — always measuring, always improving.</p>
-    </div>
-    <div class="grid process">
-      <div class="step reveal"><div class="num">01</div><h4>Discover</h4><p>We learn your business, audience and goals to find the fastest path to growth.</p></div>
-      <div class="step reveal"><div class="num">02</div><h4>Build</h4><p>Marketing systems or web apps — we design and build the right thing, done well.</p></div>
-      <div class="step reveal"><div class="num">03</div><h4>Launch</h4><p>We ship, promote and put your brand or product in front of the right people.</p></div>
-      <div class="step reveal"><div class="num">04</div><h4>Improve</h4><p>We measure results and refine continuously — the compounding power of kaizen.</p></div>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Websites <i></i> <em class="out" style="font-style:normal">Automation</em> <i></i> Brand systems <i></i> <em class="out" style="font-style:normal">Always improving</em> <i></i></span>
+      <span>Websites <i></i> <em class="out" style="font-style:normal">Automation</em> <i></i> Brand systems <i></i> <em class="out" style="font-style:normal">Always improving</em> <i></i></span>
     </div>
   </div>
-</section>
 
-<!-- ABOUT -->
-<section id="about" style="background:var(--bg-2)">
-  <div class="wrap about-grid">
-    <div class="reveal">
-      <div class="eyebrow">Who we are</div>
-      <h2 class="sec-title">A small team obsessed with better.</h2>
-      <p class="sec-intro">Kaizen Agency is a marketing studio and product shop. We help ambitious brands grow their audience while also building the web apps that make life easier — from wedding planning to fitness to personal finance. One partner for both the message and the product.</p>
-      <div class="kaizen-note">改善 <strong style="color:var(--text)">Kaizen</strong> — the Japanese philosophy of continuous improvement. It's not just our name, it's how we work: small steps, big results.</div>
-    </div>
-    <div class="about-panel reveal">
-      <div class="b"><div class="n grad-text">Marketing</div><div class="l">Social, ads, content &amp; brand</div></div>
-      <div class="b"><div class="n grad-text">Product</div><div class="l">Custom web app development</div></div>
-      <div class="b"><div class="n grad-text">Partner</div><div class="l">One team for message + build</div></div>
-      <div class="b"><div class="n grad-text">Growth</div><div class="l">Always measuring &amp; improving</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="wrap">
-    <div class="cta reveal">
-      <div class="glow a" style="opacity:.25"></div>
-      <h2>Let's grow your brand — and build what's next.</h2>
-      <p>Tell us about your project. Whether it's marketing, a web app, or both, we'll help you take the next step.</p>
-      <a href="mailto:hello@kaizenagency.com" class="btn">Get in touch</a>
-      <div class="contact-methods">
-        <a href="https://www.facebook.com/people/Kaizen-Agency/61558492156597/" target="_blank" rel="noopener" class="btn ghost">Message us on Facebook</a>
+  <section class="manifesto sec" id="about" aria-label="About Kaizen">
+    <div class="manifesto-bg" data-parallax="0.18" aria-hidden="true"></div>
+    <div class="manifesto-jp jp" data-parallax="-0.12" aria-hidden="true">改善</div>
+    <div class="wrap">
+      <span class="eyebrow mono">The name</span>
+      <p class="manifesto-text" data-words>Kaizen is the Japanese practice of <span class="hl">continuous improvement.</span> We don't hand over a site and disappear. We launch fast, measure what matters, then <span class="hl">make it better</span> — every week, on purpose.</p>
+      <div class="manifesto-sign">
+        <div><span class="mono">改 · Kai</span><b>Change</b></div>
+        <div><span class="mono">善 · Zen</span><b>For the better</b></div>
+        <div><span class="mono">Studio</span><b>Led by Vince Benlot</b></div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="sec" id="services" aria-label="Services">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 data-reveal-lines><span class="reveal-line"><span>What we</span></span><span class="reveal-line"><span class="o">build</span></span></h2>
+        <p data-fade>Three disciplines, one loop. Everything we make is designed to be measured and improved after launch — not frozen on day one.</p>
+      </div>
+      <div class="services-list">
+        <article class="svc">
+          <div class="svc-body">
+            <div class="top"><span class="num">01</span><span class="mono">Design · Build</span></div>
+            <h3>Websites that work as hard as you do</h3>
+            <p>Custom-designed marketing sites, portfolios and Shopify storefronts. Fast, accessible, responsive, and built so you can keep growing them.</p>
+            <ul><li>UX &amp; UI design</li><li>Custom &amp; Shopify builds</li><li>SEO foundations</li><li>Motion</li></ul>
+          </div>
+          <div class="svc-media"><img src="assets/web-800.webp" srcset="assets/web-800.webp 800w, assets/web.webp 1600w" sizes="(max-width:980px) 100vw, 50vw" alt="" loading="lazy" data-inner-parallax></div>
+        </article>
+        <article class="svc">
+          <div class="svc-body">
+            <div class="top"><span class="num">02</span><span class="mono">Automate</span></div>
+            <h3>Automations that give you hours back</h3>
+            <p>Booking, lead capture, follow-ups, reporting and AI-assisted workflows wired between the tools you already use — so the busywork runs itself.</p>
+            <ul><li>Workflow automation</li><li>AI assistants</li><li>CRM &amp; booking</li><li>Integrations</li></ul>
+          </div>
+          <div class="svc-media"><img src="assets/auto-800.webp" srcset="assets/auto-800.webp 800w, assets/auto.webp 1600w" sizes="(max-width:980px) 100vw, 50vw" alt="" loading="lazy" data-inner-parallax></div>
+        </article>
+        <article class="svc">
+          <div class="svc-body">
+            <div class="top"><span class="num">03</span><span class="mono">Improve</span></div>
+            <h3>Continuous improvement, every month</h3>
+            <p>An ongoing care plan: speed, conversion and content tweaks shipped in small, measurable steps. The Kaizen part of Kaizen.</p>
+            <ul><li>Conversion tuning</li><li>Performance</li><li>Content updates</li><li>Monthly reports</li></ul>
+          </div>
+          <div class="svc-media"><img src="assets/steps-800.webp" srcset="assets/steps-800.webp 800w, assets/steps.webp 1600w" sizes="(max-width:980px) 100vw, 50vw" alt="" loading="lazy" data-inner-parallax></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="work" id="work" aria-label="Selected work">
+    <div class="work-pin">
+      <div class="work-sticky">
+        <div class="wrap">
+          <div class="work-head">
+            <div>
+              <span class="eyebrow mono">Selected work</span>
+              <h2 data-reveal-lines><span class="reveal-line"><span>Live <span class="o">&amp;</span> shipping</span></span></h2>
+            </div>
+            <div class="work-progress" aria-hidden="true"><i></i></div>
+          </div>
+        </div>
+        <div class="work-track">
+          <a class="case" href="https://mariadwyerstylist.com" target="_blank" rel="noopener" aria-label="Maria Dwyer — visit live site">
+            <span class="case-idx" aria-hidden="true">01</span>
+            <div class="case-frame"><div class="case-bar" aria-hidden="true"><i></i><i></i><i></i><span>mariadwyerstylist.com</span></div><img src="assets/work/maria.webp" alt="Homepage of Maria Dwyer" loading="lazy" width="1200" height="750"></div>
+            <div class="case-meta"><div><h3>Maria Dwyer</h3><p>Colour &amp; style consultant · Dublin</p></div><span class="mono">Live ↗</span></div>
+          </a>
+          <a class="case" href="https://irishnetworkhouston.com" target="_blank" rel="noopener" aria-label="Irish Network Houston — visit live site">
+            <span class="case-idx" aria-hidden="true">02</span>
+            <div class="case-frame"><div class="case-bar" aria-hidden="true"><i></i><i></i><i></i><span>irishnetworkhouston.com</span></div><img src="assets/work/irish.webp" alt="Homepage of Irish Network Houston" loading="lazy" width="1200" height="750"></div>
+            <div class="case-meta"><div><h3>Irish Network Houston</h3><p>Community network · Houston, TX</p></div><span class="mono">Live ↗</span></div>
+          </a>
+          <a class="case" href="https://roblipsett.com" target="_blank" rel="noopener" aria-label="Rob Lipsett — visit live site">
+            <span class="case-idx" aria-hidden="true">03</span>
+            <div class="case-frame"><div class="case-bar" aria-hidden="true"><i></i><i></i><i></i><span>roblipsett.com</span></div><img src="assets/work/rob.webp" alt="Homepage of Rob Lipsett" loading="lazy" width="1200" height="750"></div>
+            <div class="case-meta"><div><h3>Rob Lipsett</h3><p>Creator storefront on Shopify</p></div><span class="mono">Live ↗</span></div>
+          </a>
+          <a class="case" href="http://gissellemhva.site" target="_blank" rel="noopener" aria-label="Gisselle Sebuguero — visit live site">
+            <span class="case-idx" aria-hidden="true">04</span>
+            <div class="case-frame"><div class="case-bar" aria-hidden="true"><i></i><i></i><i></i><span>gissellemhva.site</span></div><img src="assets/work/gisselle.webp" alt="Homepage of Gisselle Sebuguero" loading="lazy" width="1200" height="750"></div>
+            <div class="case-meta"><div><h3>Gisselle Sebuguero</h3><p>Healthcare virtual assistant portfolio</p></div><span class="mono">Live ↗</span></div>
+          </a>
+
+          <div class="case-end">
+            <p>Your site could be <span class="o">next</span> on this wall.</p>
+            <span class="magnet"><a class="btn btn-primary" href="https://calendly.com/kaizen-agency/discovery-call-with-vince" target="_blank" rel="noopener" data-cursor="BOOK">Start a project <span class="arr">↗</span></a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="process" aria-label="Process">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 data-reveal-lines><span class="reveal-line"><span>The</span></span><span class="reveal-line"><span class="o">loop</span></span></h2>
+        <p data-fade>Four steps, then repeat. Small releases beat big redesigns — each cycle makes the site a little faster, clearer and better at converting.</p>
+      </div>
+      <div class="process-grid">
+        <svg class="process-path" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="1" x2="100" y2="1" stroke="#e8590c" stroke-width="2" vector-effect="non-scaling-stroke" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg>
+        <div class="step"><span class="dot"></span><span class="num">01</span><h3>Discover</h3><p>A call to understand the business, the audience and what “better” should mean in numbers.</p><span class="jp">調査</span></div>
+        <div class="step"><span class="dot"></span><span class="num">02</span><h3>Design</h3><p>Structure, copy and visual direction, reviewed together before a line of production code.</p><span class="jp">設計</span></div>
+        <div class="step"><span class="dot"></span><span class="num">03</span><h3>Build</h3><p>Fast, responsive builds with the automations wired in. Launched, tested and handed over clean.</p><span class="jp">構築</span></div>
+        <div class="step"><span class="dot"></span><span class="num">04</span><h3>Improve</h3><p>Measure, tweak, ship. Then go round again. This is where most agencies stop — and where we start.</p><span class="jp">改善</span></div>
+      </div>
+      <div class="loop-note mono" data-fade>
+        <svg viewBox="0 0 40 40" fill="none" stroke="#e8590c" stroke-width="1.5" aria-hidden="true"><path class="loop-arc" d="M33 20a13 13 0 1 1-4-9.4"/><path d="M30 4v7h-7"/></svg>
+        Step 04 feeds back into 01 — forever
+      </div>
+    </div>
+  </section>
+
+  <section class="statement" aria-label="Philosophy">
+    <div class="statement-bg" data-parallax="0.22" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="eyebrow mono">The compounding effect</span>
+      <h2 data-reveal-lines><span class="reveal-line"><span>Small steps.</span></span><span class="reveal-line"><span class="o">Big climbs.</span></span></h2>
+      <div class="percent">
+        <div data-fade><b><span data-count="1">0</span>%</b><span>A small improvement, shipped every week.</span></div>
+        <div data-fade><b>×<span data-count="1.68" data-dec="2">0</span></b><span>Where 1% a week compounds to over a year — 1.01<sup>52</sup>.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" aria-label="How we work">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 data-reveal-lines><span class="reveal-line"><span>How we</span></span><span class="reveal-line"><span class="o">work</span></span></h2>
+        <p data-fade>Small studio, senior attention. You talk directly to the person designing and building your project.</p>
+      </div>
+      <div class="principles">
+        <div class="pr" data-fade><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 30 30 4M14 4h16v16"/></svg><h3>Direct line</h3><p>No account managers or hand-offs. One point of contact from first call to every future release.</p></div>
+        <div class="pr" data-fade><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="26" height="26"/><path d="M4 22h8l4-8 4 12 4-6h6"/></svg><h3>Measured, not guessed</h3><p>Every change is tied to something we can watch — speed, enquiries, bookings, sales.</p></div>
+        <div class="pr" data-fade><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="17" cy="17" r="13"/><path d="M17 8v9l6 4"/></svg><h3>Built across time zones</h3><p>Based in the Philippines, working with clients in the US and Ireland — progress lands while you sleep.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact" aria-label="Contact">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <div class="wrap">
+      <span class="eyebrow mono">Next step</span>
+      <h2 data-reveal-lines><span class="line"><span>Let's make</span></span><span class="line"><span>it <span class="o">better.</span></span></span></h2>
+      <p data-fade>Book a free 30-minute discovery call. We'll look at what you have, what's slowing you down, and what to improve first.</p>
+      <span class="magnet"><a class="btn btn-primary" href="https://calendly.com/kaizen-agency/discovery-call-with-vince" target="_blank" rel="noopener" data-cursor="BOOK">Book a discovery call <span class="arr">↗</span></a></span>
+    </div>
+  </section>
+</main>
 
 <footer>
-  <div class="wrap foot">
-    <div class="logo"><img src="logo.png" alt="Kaizen Agency" class="logo-img" style="height:26px"></div>
-    <div class="muted">© <span id="yr"></span> Kaizen Agency. Continuous improvement, always.</div>
-    <div class="socials">
-      <a href="https://www.facebook.com/people/Kaizen-Agency/61558492156597/" target="_blank" rel="noopener" aria-label="Facebook">f</a>
-      <a href="#contact" aria-label="Email">@</a>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <span class="mono o">改善 · Kaizen</span>
+        <p>Websites and automations, built sharp and improved forever.</p>
+      </div>
+      <div>
+        <h4 class="mono">Studio</h4>
+        <ul><li><a href="#services">Services</a></li><li><a href="#work">Work</a></li><li><a href="#process">Process</a></li><li><a href="#about">About</a></li></ul>
+      </div>
+      <div>
+        <h4 class="mono">Elsewhere</h4>
+        <ul><li><a href="https://calendly.com/kaizen-agency/discovery-call-with-vince" target="_blank" rel="noopener">Book a call ↗</a></li><li><a href="https://vincentbenlot.site" target="_blank" rel="noopener">vincentbenlot.site ↗</a></li></ul>
+      </div>
     </div>
+    <svg class="foot-logo" viewBox="-1 -1 347.25 67.38" role="img" aria-label="Kaizen"><g class="t" fill="#fff"><path d="M165.25 15.62 L166.38 16.38 L196.00 16.50 L196.12 17.25 L181.00 32.38 L181.62 32.88 L197.00 32.62 L216.38 14.00 L218.00 5.50 L217.38 4.88 L168.38 4.88 L167.12 6.00Z M143.25 4.88 L141.88 5.75 L136.62 32.50 L137.38 33.38 L150.00 33.25 L151.38 30.00 L156.00 5.50 L155.25 4.88Z M6.25 33.88 L7.25 34.50 L36.88 34.25 L38.62 31.25 L66.50 6.88 L67.50 5.12 L51.38 5.25 L21.25 31.88 L20.62 30.25 L25.50 5.38 L24.88 4.88 L12.12 5.12Z M286.50 5.38 L281.75 27.88 L281.62 31.88 L294.12 31.75 L295.00 31.12 L296.00 28.38 L298.88 31.75 L313.38 31.25 L298.00 5.12 L288.00 4.75Z M228.50 5.38 L223.12 31.38 L224.12 32.50 L264.62 32.00 L265.50 30.38 L264.88 29.38 L238.00 29.25 L237.62 28.12 L239.75 17.38 L241.25 16.12 L271.25 16.12 L272.00 15.50 L273.88 6.38 L273.25 4.88 L230.38 4.75Z M109.00 5.50 L107.12 4.75 L94.88 5.25 L77.75 31.38 L77.12 33.62 L90.12 33.50 L99.00 19.38 L99.88 20.38 L102.88 33.25 L115.25 33.38 L115.50 31.50Z"/></g><g class="b" fill="#fff"><path d="M16.38 50.62 L2.88 50.75 L0.12 65.00 L13.62 65.12 L16.38 53.12Z M123.50 65.00 L120.12 50.12 L119.25 49.50 L66.88 49.75 L64.88 51.38 L57.25 63.25 L55.88 62.50 L48.25 50.50 L33.38 50.12 L32.75 50.75 L40.75 63.50 L42.62 65.38 L70.62 65.38 L79.12 52.38 L106.00 52.38 L107.25 53.38 L110.00 65.25Z M133.50 49.62 L130.38 65.00 L144.12 65.25 L147.12 49.62Z M154.50 64.25 L155.00 65.38 L206.75 65.38 L208.38 60.88 L209.38 54.75 L208.88 53.88 L177.25 54.00 L176.75 53.12 L179.50 50.38 L179.62 48.88 L164.75 49.00 L162.38 50.25 L156.75 55.75Z M216.62 64.00 L217.12 65.38 L262.62 65.38 L263.38 64.75 L265.38 55.12 L264.88 54.25 L233.12 54.25 L232.62 52.88 L233.50 49.12 L233.00 48.50 L220.50 48.50 L219.62 49.25Z M291.00 48.00 L277.88 48.50 L274.62 63.50 L275.00 65.38 L288.38 65.00 L291.38 50.00Z M333.00 47.75 L308.88 47.75 L308.38 48.50 L318.25 65.12 L329.25 65.38 L330.12 64.75Z"/></g><path fill="#e8590c" d="M336.25 0.00 L323.25 8.75 L326.75 10.25 L323.00 30.12 L323.38 31.38 L336.25 31.38 L337.25 29.12 L340.12 13.88 L341.12 12.62 L343.75 13.25 L345.25 12.88 L341.50 7.38 L341.50 5.25 L339.62 4.38Z"/></svg>
+    <div class="foot-bottom mono"><span>© <span id="yr">2026</span> Kaizen</span><span>Change for the better</span></div>
   </div>
 </footer>
 
-<script>
-  document.getElementById('yr').textContent = new Date().getFullYear();
-  // scroll reveal
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
-  },{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
