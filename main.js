@@ -139,11 +139,11 @@
 
   function measure() {
     vw = innerWidth; vh = innerHeight;
-    horiz = vw > 720;
+    horiz = vw > 720 && !!workPin;
     if (horiz) {
       workDist = Math.max(0, workTrack.scrollWidth - vw);
       workPin.style.height = (workDist + vh) + 'px';
-    } else {
+    } else if (workPin) {
       workPin.style.height = ''; workTrack.style.transform = '';
     }
   }
@@ -196,23 +196,27 @@
     }
 
     // manifesto words light up
-    if (words.length) {
+    if (words.length && manifesto) {
       var mp = progress(manifesto, 0.85, 0.55);
       var lit = mp * (words.length + 6);
       for (var k = 0; k < words.length; k++) words[k].style.opacity = (0.14 + 0.86 * clamp(lit - k, 0, 1)).toFixed(3);
     }
 
     // process line
-    var pp = progress(proc, 0.8, 0.6);
-    procLine.setAttribute('stroke-dashoffset', (100 - pp * 100).toFixed(2));
-    steps.forEach(function (s, i) { s.classList.toggle('on', pp >= i / steps.length + 0.02 || (i === 0 && pp > 0.01)); });
+    if (proc && procLine) {
+      var pp = progress(proc, 0.8, 0.6);
+      procLine.setAttribute('stroke-dashoffset', (100 - pp * 100).toFixed(2));
+      steps.forEach(function (s, i) { s.classList.toggle('on', pp >= i / steps.length + 0.02 || (i === 0 && pp > 0.01)); });
+    }
 
     // marquee reacts to scroll velocity + direction
     if (Math.abs(dy) > 0.5) mqDir = dy > 0 ? -1 : 1;
+    if (marquee) {
     mqX += mqDir * (0.6 + Math.min(Math.abs(vel) * 0.5, 14));
     var half = marquee.scrollWidth / 2;
     if (mqX <= -half) mqX += half; if (mqX > 0) mqX -= half;
     marquee.style.transform = 'translate3d(' + mqX.toFixed(1) + 'px,0,0) skewX(' + clamp(-vel * 0.25, -10, 10).toFixed(2) + 'deg)';
+    }
 
     requestAnimationFrame(frame);
   }
